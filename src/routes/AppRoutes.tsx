@@ -26,6 +26,9 @@ import FinancePage from './pages/finance/FinancePage';
 // Scheduler Pages
 import SchedulerPage from './pages/scheduler/SchedulerPage';
 
+// Templates
+import AdminTemplatePage from '../pages/templates/AdminTemplatePage';
+
 import NotFoundPage from './pages/NotFoundPage';
 import GivingPage from './pages/giving/GivingPage';
 
@@ -140,6 +143,11 @@ const AppRoutes: React.FC = () => {
             <Route 
                 path="/finance/budget" 
                 element={<ProtectedRoute component={FinancePage} />} 
+            />
+            {/* Templates */}
+            <Route 
+                path="/templates/admin" 
+                element={<ProtectedRoute component={AdminTemplatePage} />} 
             />
             <Route 
                 path="*" 
