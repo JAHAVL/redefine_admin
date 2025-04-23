@@ -5,16 +5,17 @@ This document outlines the complete step-by-step process for converting existing
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
-2. [Step 1: Create the Template-Based Page](#step-1-create-the-template-based-page)
-3. [Step 2: Update AppRoutes.tsx](#step-2-update-approutes-tsx)
-4. [Step 3: Update LeftMenu Navigation](#step-3-update-leftmenu-navigation)
-5. [Step 4: Configure SubMenu](#step-4-configure-submenu)
-6. [Step 5: Update MainPageTemplate](#step-5-update-mainpagetemplate)
-7. [Step 6: Test Navigation](#step-6-test-navigation)
-8. [Step 7: Delete Original Page](#step-7-delete-original-page)
-9. [Troubleshooting](#troubleshooting)
-10. [Example: File Manager Conversion](#example-file-manager-conversion)
-11. [Alternative Patterns](#alternative-patterns)
+2. [Step 1: Analyze Original Page Structure](#step-1-analyze-original-page-structure)
+3. [Step 2: Create Template-Based Page(s)](#step-2-create-template-based-pages)
+4. [Step 3: Update AppRoutes.tsx](#step-3-update-approutestsx)
+5. [Step 4: Update LeftMenu Navigation](#step-4-update-leftmenu-navigation)
+6. [Step 5: Configure SubMenu](#step-5-configure-submenu)
+7. [Step 6: Update MainPageTemplate](#step-6-update-mainpagetemplate)
+8. [Step 7: Test Navigation](#step-7-test-navigation)
+9. [Step 8: Delete Original Page](#step-8-delete-original-page)
+10. [Troubleshooting](#troubleshooting)
+11. [Example: File Manager Conversion](#example-file-manager-conversion)
+12. [Example: Finance Pages Conversion](#example-finance-pages-conversion)
 
 ## Prerequisites
 
@@ -22,11 +23,28 @@ This document outlines the complete step-by-step process for converting existing
 - Ensure LeftMenu and SubMenu components are properly implemented
 - Understand the routing structure and navigation scheme of the application
 
-## Step 1: Create the Template-Based Page
+## Step 1: Analyze Original Page Structure
+
+Before converting any page, carefully analyze its structure:
+
+1. Examine the original page component to identify:
+   - The main content or widget it renders
+   - Any context providers or wrappers around that content
+   - How routes and sub-routes are handled
+
+2. Determine if the page has multiple sub-pages or routes:
+   - If it's a simple page with one view, use a single template page
+   - If it manages multiple views/routes, create separate template pages for each
+
+3. Identify any style containers, theme providers, or other essential wrappers that must be preserved
+
+This analysis is crucial for determining the correct conversion approach.
+
+## Step 2: Create Template-Based Page(s)
 
 1. Create a new file for your page in the same directory as the original page
 2. Name the new file with "NEW" appended (e.g., `FileManagerPageNEW.tsx`)
-3. Use this exact structure:
+3. Start with this basic structure:
 
 ```tsx
 import React from 'react';
@@ -51,46 +69,69 @@ export default [PageName]PageNEW;
 
 4. Replace `[PageName]` with your component name (e.g., `FileManager`)
 5. Replace `[Page Title]` with the display title (e.g., `File Manager`)
-6. If you need to include the original widget, add the import and include it in the widget container:
+
+6. Import and include the original widget/content with any necessary wrappers:
 
 ```tsx
+// Import the widget component
 import [WidgetName] from '../../widgets/[Directory]/[WidgetName]';
+
+// If the widget needs context providers or styling containers, import those too
+import { ThemeProvider } from '../../widgets/[Directory]/theme/ThemeProvider';
+import { WidgetContainer, ContentArea } from '../../widgets/[Directory]/Styled';
 
 // ...
 
+// Include the widget with all necessary wrappers to preserve styling and functionality
 <div className="widget-container" style={{ padding: '20px' }}>
-  <[WidgetName] />
+  <ThemeProvider>
+    <WidgetContainer>
+      <ContentArea>
+        <[WidgetName] />
+      </ContentArea>
+    </WidgetContainer>
+  </ThemeProvider>
 </div>
 ```
 
-## Step 2: Update AppRoutes.tsx
+7. If creating multiple pages for sub-routes, repeat this process for each sub-route
+
+## Step 3: Update AppRoutes.tsx
 
 1. Open `src/routes/AppRoutes.tsx`
-2. Import the new page component at the top of the file:
+2. Import the new page component(s) at the top of the file:
 
 ```tsx
 import [PageName]PageNEW from '../pages/[Directory]/[PageName]PageNEW';
+// Import any sub-page components
+import [SubPage1]PageNEW from '../pages/[Directory]/[SubPage1]PageNEW';
+import [SubPage2]PageNEW from '../pages/[Directory]/[SubPage2]PageNEW';
 ```
 
-3. Add a new route for the page with "-new" appended to the original path:
+3. Add new routes with "-new" appended to the original path:
 
 ```tsx
+{/* New Template-Based Routes */}
 <Route 
     path="/[original-path]-new" 
     element={<ProtectedRoute component={[PageName]PageNEW} />} 
 />
 ```
 
-4. For sub-pages, follow the same pattern for nested routes:
+4. For sub-pages, add separate routes pointing to their respective components:
 
 ```tsx
 <Route 
-    path="/[original-path]-new/[subpath]" 
-    element={<ProtectedRoute component={[SubPage]PageNEW} />} 
+    path="/[original-path]-new/[subpath1]" 
+    element={<ProtectedRoute component={[SubPage1]PageNEW} />} 
+/>
+<Route 
+    path="/[original-path]-new/[subpath2]" 
+    element={<ProtectedRoute component={[SubPage2]PageNEW} />} 
 />
 ```
 
-## Step 3: Update LeftMenu Navigation
+## Step 4: Update LeftMenu Navigation
 
 1. Open `src/components/LeftMenu/LeftMenu.tsx`
 2. Find the menu item in the `menuItems` array that corresponds to your page
@@ -100,7 +141,7 @@ import [PageName]PageNEW from '../pages/[Directory]/[PageName]PageNEW';
 { id: '[section-id]', label: '[Label]', icon: '[icon]', iconComponent: [IconComponent], link: '/[original-path]-new' },
 ```
 
-## Step 4: Configure SubMenu
+## Step 5: Configure SubMenu
 
 1. Open `src/components/SubMenu/SubMenu.tsx`
 2. Locate or add a case for your section in the switch statement:
@@ -109,13 +150,15 @@ import [PageName]PageNEW from '../pages/[Directory]/[PageName]PageNEW';
 case '[section-id]':
   menuItems = [
     { id: '[item1-id]', label: '', icon: [Icon1], path: '/[section-path]-new' },
-    { id: '[item2-id]', label: '', icon: [Icon2], path: '/[section-path]-new/[subpath]' },
+    { id: '[item2-id]', label: '', icon: [Icon2], path: '/[section-path]-new/[subpath1]' },
+    { id: '[item3-id]', label: '', icon: [Icon3], path: '/[section-path]-new/[subpath2]' },
   ];
   break;
 ```
 
 3. Make sure all items have the correct icons and empty label values (prevents text display)
-4. If needed, update the `isActive` function to properly detect the active state:
+
+4. Update the `isActive` function to handle all the new routes:
 
 ```tsx
 const isActive = (item: SubMenuItem) => {
@@ -125,9 +168,10 @@ const isActive = (item: SubMenuItem) => {
   // Exact match
   if (currentPath === itemPath) return true;
   
-  // Specific checks for section pages
+  // Section-specific checks
   if (item.id === '[item1-id]' && currentPath === '/[section-path]-new') return true;
-  if (item.id === '[item2-id]' && currentPath === '/[section-path]-new/[subpath]') return true;
+  if (item.id === '[item2-id]' && currentPath === '/[section-path]-new/[subpath1]') return true;
+  if (item.id === '[item3-id]' && currentPath === '/[section-path]-new/[subpath2]') return true;
   
   return false;
 };
@@ -147,7 +191,7 @@ const isActive = (item: SubMenuItem) => {
 }
 ```
 
-## Step 5: Update MainPageTemplate
+## Step 6: Update MainPageTemplate
 
 1. Open `src/components/MainPageTemplate/MainPageTemplate.tsx`
 2. If the new page uses a different URL pattern, update the `getCurrentSection` function:
@@ -165,19 +209,24 @@ const getCurrentSection = (): string => {
 };
 ```
 
-## Step 6: Test Navigation
+## Step 7: Test Navigation
 
 1. Start the development server with `npm start`
 2. Verify that:
-   - The new page loads correctly with the MainPageTemplate structure
-   - The left menu highlights the correct section when on the page
-   - Any submenu items appear correctly with proper icons
+   - All new pages load correctly with proper styling and content
+   - The left menu highlights the correct section when on any page
+   - Submenu items appear correctly with proper icons
    - The active submenu item has the blue glow effect
    - All navigation between pages works as expected
 
-## Step 7: Delete Original Page
+3. Check specifically for styling issues:
+   - Make sure widgets have their original styling and themes
+   - Verify all context providers are working correctly
+   - Check that layout containers are properly applied
 
-1. Once you've thoroughly tested the new template-based page, delete the original page:
+## Step 8: Delete Original Page
+
+1. Once you've thoroughly tested the new template-based pages, delete the original page:
 
 ```bash
 rm 'src/pages/[Directory]/[OriginalPage].tsx'
@@ -186,6 +235,11 @@ rm 'src/pages/[Directory]/[OriginalPage].tsx'
 2. Remove any routes pointing to the deleted page from AppRoutes.tsx
 
 ## Troubleshooting
+
+### Blank Pages or Missing Styling
+
+- If pages appear blank or have missing styling, check if you've included all necessary context providers and styling containers from the original widget
+- Look at the original widget's component structure to see what wrappers are needed
 
 ### Navigation Issues
 
@@ -222,33 +276,25 @@ const iconStyle = {
 };
 ```
 
-- Apply these styles to the elements in the component:
-
-```tsx
-<li 
-  style={liStyle}
-  className={isActive(item) ? 'active' : ''}
->
-  <span className="menu-icon" style={iconStyle}>
-    <item.icon size={20} />
-  </span>
-</li>
-```
-
 ## Example: File Manager Conversion
 
-Here's a complete example of converting the File Manager pages:
+### Multiple Components Approach
 
-### 1. Create the New Page
+The File Manager section was converted by creating separate components for each page:
+
+1. `FileManagerPageNEW.tsx` - For the main file manager view
+2. `GroupsPageNEW.tsx` - For the groups sub-page
+
+This approach works well when each page has distinct content that's not deeply integrated with other pages.
 
 ```tsx
-// src/pages/File Manager/FileManagerPageNEW.tsx
+// FileManagerPageNEW.tsx
 import React from 'react';
 import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
 
 const FileManagerPageNEW: React.FC = () => {
   return (
-    <MainPageTemplate pageTitle="File Manager NEW">
+    <MainPageTemplate pageTitle="File Manager">
       <div className="widget-container" style={{ padding: '20px' }}>
         {/* Widget content will be loaded here */}
       </div>
@@ -259,10 +305,8 @@ const FileManagerPageNEW: React.FC = () => {
 export default FileManagerPageNEW;
 ```
 
-### 2. Create the Groups Subpage
-
 ```tsx
-// src/pages/File Manager/GroupsPageNEW.tsx
+// GroupsPageNEW.tsx
 import React from 'react';
 import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
 
@@ -279,147 +323,45 @@ const GroupsPageNEW: React.FC = () => {
 export default GroupsPageNEW;
 ```
 
-### 3. Update AppRoutes.tsx
+## Example: Finance Pages Conversion
+
+### Preserving Widget Container Structure
+
+The Finance section required preserving the original widget's container structure. Each page needed to maintain the same theme providers and styled containers for proper styling:
 
 ```tsx
-// Add imports
-import FileManagerPageNEW from '../pages/File Manager/FileManagerPageNEW';
-import GroupsPageNEW from '../pages/File Manager/GroupsPageNEW';
-
-// Add routes
-<Route 
-    path="/file-manager-new" 
-    element={<ProtectedRoute component={FileManagerPageNEW} />} 
-/>
-<Route 
-    path="/file-manager-new/groups" 
-    element={<ProtectedRoute component={GroupsPageNEW} />} 
-/>
-```
-
-### 4. Update LeftMenu.tsx
-
-```tsx
-// Update the file-manager link
-{ id: 'file-manager', label: 'File Manager', icon: 'file', iconComponent: FileEdit, link: '/file-manager-new' },
-```
-
-### 5. Update SubMenu.tsx
-
-```tsx
-// Add file-manager case
-case 'file-manager':
-  menuItems = [
-    { id: 'files', label: '', icon: Folder, path: '/file-manager-new' },
-    { id: 'groups', label: '', icon: Users, path: '/file-manager-new/groups' },
-  ];
-  break;
-
-// Update isActive function
-const isActive = (item: SubMenuItem) => {
-  const currentPath = location.pathname.toLowerCase();
-  const itemPath = item.path.toLowerCase();
-  
-  // Exact match
-  if (currentPath === itemPath) return true;
-  
-  // For the 'files' item, it should be active when exactly on file-manager-new path
-  if (item.id === 'files' && currentPath === '/file-manager-new') return true;
-  
-  // For the 'groups' item, it should be active when on file-manager-new/groups path
-  if (item.id === 'groups' && currentPath === '/file-manager-new/groups') return true;
-  
-  return false;
-};
-```
-
-### 6. Update MainPageTemplate.tsx
-
-```tsx
-// Update getCurrentSection to recognize file-manager-new
-const getCurrentSection = (): string => {
-  const path = location.pathname.split('/')[1] || 'dashboard';
-  
-  // Map file-manager-new to file-manager section
-  if (path === 'file-manager-new') {
-    return 'file-manager';
-  }
-  
-  return path;
-};
-```
-
-### 7. Delete Original Files
-
-```bash
-rm 'src/pages/File Manager/FileManagerPage.tsx'
-rm 'src/pages/File Manager/GroupsPage.tsx'
-
-```
-
-## Alternative Patterns
-
-### Single Component for Multiple Routes
-
-In some cases, you might have a single page component that handles multiple routes/sub-pages. For example, the Finance section uses a single `FinancePageNEW.tsx` component for all finance routes (`/finance-new`, `/finance-new/transactions`, etc.).
-
-This pattern works when:
-
-1. The original page already follows this pattern (one component for multiple routes)
-2. The widget rendered by the page has internal routing logic to display different content based on the URL
-
-To implement this pattern:
-
-1. Create just one new template-based page component
-2. Add all routes in AppRoutes.tsx pointing to the same component
-3. Update the SubMenu to include icons for all sub-routes
-4. Update the isActive function to handle all the routes:
-
-```tsx
-// Finance section active states
-if (item.id === 'overview' && currentPath === '/finance-new') return true;
-if (item.id === 'transactions' && currentPath === '/finance-new/transactions') return true;
-if (item.id === 'accounts' && currentPath === '/finance-new/accounts') return true;
-// etc...
-```
-
-### Example: Finance Page Conversion
-
-```tsx
-// src/pages/finance/FinancePageNEW.tsx
 import React from 'react';
 import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
-import FinanceWidget from '../../widgets/financewidget';
+import { FinanceThemeProvider } from '../../widgets/financewidget/theme/FinanceThemeProvider';
+import { 
+  FinanceWidgetContainer,
+  FinanceContent
+} from '../../widgets/financewidget/FinanceWidgetStyled/index';
+import TransactionsModule from '../../widgets/financewidget/modules/transactions';
 
-const FinancePageNEW: React.FC = () => {
+const TransactionsPageNEW: React.FC = () => {
   return (
-    <MainPageTemplate pageTitle="Finance">
+    <MainPageTemplate pageTitle="Finance Transactions">
       <div className="widget-container" style={{ padding: '20px' }}>
-        <FinanceWidget />
+        <FinanceThemeProvider>
+          <FinanceWidgetContainer>
+            <FinanceContent>
+              <TransactionsModule />
+            </FinanceContent>
+          </FinanceWidgetContainer>
+        </FinanceThemeProvider>
       </div>
     </MainPageTemplate>
   );
 };
 
-export default FinancePageNEW;
+export default TransactionsPageNEW;
 ```
 
-In AppRoutes.tsx, all finance routes point to the same component:
+Key points:
+1. We imported the `FinanceThemeProvider` for theming
+2. We imported the styled containers (`FinanceWidgetContainer`, `FinanceContent`) from the original widget
+3. We wrapped each module in these containers to maintain consistent styling
+4. We created separate components for each sub-page/module
 
-```tsx
-<Route 
-    path="/finance-new" 
-    element={<ProtectedRoute component={FinancePageNEW} />} 
-/>
-<Route 
-    path="/finance-new/transactions" 
-    element={<ProtectedRoute component={FinancePageNEW} />} 
-/>
-<Route 
-    path="/finance-new/accounts" 
-    element={<ProtectedRoute component={FinancePageNEW} />} 
-/>
-// etc...
-```
-
-The FinanceWidget itself would then determine what content to show based on the current route.
+This approach ensures that when breaking up a widget with shared styles into separate components, each component maintains the same visual appearance and behavior as the original widget.

@@ -185,14 +185,12 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     // Exact match
     if (currentPath === itemPath) return true;
     
-    // For the 'files' item, it should be active when exactly on file-manager-new path
+    // File Manager section
     if (item.id === 'files' && currentPath === '/file-manager-new') return true;
-    
-    // For the 'groups' item, it should be active when on file-manager-new/groups path
     if (item.id === 'groups' && currentPath === '/file-manager-new/groups') return true;
     
-    // Finance section active states
-    if (item.id === 'overview' && currentPath === '/finance-new') return true;
+    // Finance section
+    if (item.id === 'overview' && (currentPath === '/finance-new' || currentPath === '/finance-new/dashboard')) return true;
     if (item.id === 'transactions' && currentPath === '/finance-new/transactions') return true;
     if (item.id === 'accounts' && currentPath === '/finance-new/accounts') return true;
     if (item.id === 'reports' && currentPath === '/finance-new/reports') return true;

@@ -17,6 +17,12 @@ import GroupsPage from './pages/File Manager/GroupsPage';
 import FileManagerPageNEW from '../pages/File Manager/FileManagerPageNEW';
 import GroupsPageNEW from '../pages/File Manager/GroupsPageNEW';
 import FinancePageNEW from '../pages/finance/FinancePageNEW';
+import FinanceDashboardPageNEW from '../pages/finance/FinanceDashboardPageNEW';
+import TransactionsPageNEW from '../pages/finance/TransactionsPageNEW';
+import AccountsPageNEW from '../pages/finance/AccountsPageNEW';
+import ReportsPageNEW from '../pages/finance/ReportsPageNEW';
+import ReconciliationPageNEW from '../pages/finance/ReconciliationPageNEW';
+import StatementsPageNEW from '../pages/finance/StatementsPageNEW';
 
 // Locations Pages
 import LocationsPage from './pages/Locations/LocationsPage';
@@ -119,27 +125,31 @@ const AppRoutes: React.FC = () => {
             {/* New Template-Based Finance Routes */}
             <Route 
                 path="/finance-new" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={FinanceDashboardPageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/dashboard" 
+                element={<ProtectedRoute component={FinanceDashboardPageNEW} />} 
             />
             <Route 
                 path="/finance-new/transactions" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={TransactionsPageNEW} />} 
             />
             <Route 
                 path="/finance-new/accounts" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={AccountsPageNEW} />} 
             />
             <Route 
                 path="/finance-new/reports" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={ReportsPageNEW} />} 
             />
             <Route 
                 path="/finance-new/statements" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={StatementsPageNEW} />} 
             />
             <Route 
                 path="/finance-new/reconciliation" 
-                element={<ProtectedRoute component={FinancePageNEW} />} 
+                element={<ProtectedRoute component={ReconciliationPageNEW} />} 
             />
             {/* Scheduler Routes */}
             <Route 
