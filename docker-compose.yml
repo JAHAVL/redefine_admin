@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  admin-react:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+      - "3003:3001"
+    volumes:
+      - ./src:/app/src:cached
+      - ./public:/app/public:cached
+      - ./package.json:/app/package.json:cached
+      - ./package-lock.json:/app/package-lock.json:cached
+      - ./tsconfig.json:/app/tsconfig.json:cached
+      - ./config-overrides.js:/app/config-overrides.js:cached
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - HOST=0.0.0.0
+      - PORT=3000
+      - WDS_SOCKET_PORT=3001
+      - DANGEROUSLY_DISABLE_HOST_CHECK=true
+      - PUBLIC_URL=http://localhost:3003
+    stdin_open: true # For interactive sessions
+    tty: true # For color output
+
+volumes:
+  node_modules:

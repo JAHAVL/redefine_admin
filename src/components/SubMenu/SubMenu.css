@@ -1,0 +1,119 @@
+/* SubMenu.css */
+.sub-menu {
+  background-color: var(--secondary-color); /* Using the theme variable */
+  padding: 8px 15px;
+  position: relative;
+  z-index: 1000; /* Significantly increased to ensure it's always on top */
+  border-radius: 16px; /* Increased border radius */
+  width: 80%; /* Reduced from calc(100% - 20px) to 80% */
+  max-width: 800px; /* Added max-width limit */
+  margin: 0 auto 40px auto; /* Centered with auto margins on left/right */
+  box-shadow: 0 4px 12px var(--shadow-color); /* Using theme shadow variable */
+  height: var(--submenu-height);
+  display: flex; /* Added to center content */
+  justify-content: center; /* Added to center content */
+  align-items: center; /* Added to center content */
+}
+
+.sub-menu ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+/* Hide scrollbar but allow scrolling */
+.sub-menu ul::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+  background: transparent;
+}
+
+.sub-menu li {
+  margin-right: 20px;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.sub-menu li:hover {
+  background-color: var(--hover-bg); /* Using theme hover variable */
+  color: var(--accent-color);
+}
+
+.sub-menu li.active {
+  background-color: var(--hover-bg); /* Using theme hover variable */
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.sub-menu .menu-icon {
+  margin-right: 6px;
+  display: flex;
+  align-items: center;
+}
+
+/* Centered icons for SubMenu */
+.centered-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Added to improve vertical centering */
+  gap: 60px; /* Increased gap for better spacing */
+  margin: 0;
+  padding: 15px 20px; /* Added vertical padding */
+  width: 100%; /* Ensure full width of container */
+  list-style: none; /* Remove default list styling */
+}
+
+.centered-icons li {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Changed to circular icons */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.centered-icons li:hover {
+  background-color: var(--hover-bg); /* Using theme hover variable */
+  transform: translateY(-2px);
+}
+
+.centered-icons li.active {
+  background-color: var(--hover-bg); /* Using theme hover variable */
+}
+
+.centered-icons .menu-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-light); /* Using theme text variable */
+}
+
+/* Ensure SVG icons are also white */
+.centered-icons .menu-icon svg {
+  stroke: var(--text-light); /* Using theme text variable */
+}
+
+@media (max-width: 768px) {
+  .sub-menu {
+    padding: 6px 10px;
+    margin-bottom: 5px;
+  }
+  
+  .sub-menu li {
+    margin-right: 10px;
+    padding: 4px 6px;
+    font-size: 13px;
+  }
+}

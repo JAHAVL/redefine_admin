@@ -1,0 +1,342 @@
+/* File Manager Widget Styles */
+.file-manager-widget {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Header Section */
+.file-manager-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: rgba(42, 42, 60, 0.8);
+  border-bottom: 1px solid #3a3a4c;
+}
+
+.file-manager-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  font-size: 14px;
+}
+
+.file-manager-breadcrumb button {
+  background: none;
+  border: none;
+  color: #6c7293;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-right: 8px;
+  border-radius: 4px;
+}
+
+.file-manager-breadcrumb button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.file-manager-breadcrumb button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-manager-search {
+  margin: 0 16px;
+  flex: 2;
+}
+
+.file-manager-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #3a3a4c;
+  background-color: #1e1e2d;
+  color: #fff;
+  font-size: 14px;
+}
+
+.file-manager-search input:focus {
+  outline: none;
+  border-color: #3478ff;
+}
+
+.file-manager-actions-top {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.file-manager-actions-top button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background-color: #2a2a3c;
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.file-manager-actions-top button:hover {
+  background-color: #3a3a4c;
+}
+
+.file-manager-actions-top .upload-btn {
+  background-color: #3478ff;
+}
+
+.file-manager-actions-top .upload-btn:hover {
+  background-color: #2a6be6;
+}
+
+.file-manager-view-options {
+  display: flex;
+  gap: 8px;
+}
+
+.file-manager-view-options button {
+  background: none;
+  border: none;
+  color: #6c7293;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.file-manager-view-options button:hover,
+.file-manager-view-options button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #3478ff;
+}
+
+/* Actions Section */
+.file-manager-actions {
+  display: flex;
+  padding: 12px 16px;
+  gap: 12px;
+  border-bottom: 1px solid #3a3a4c;
+  background-color: rgba(42, 42, 60, 0.7);
+}
+
+.file-manager-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background-color: #2a2a3c;
+  color: #fff;
+}
+
+.file-manager-actions button:hover {
+  background-color: #3a3a4c;
+}
+
+.upload-btn {
+  background-color: #3478ff !important;
+}
+
+.upload-btn:hover {
+  background-color: #2a6be6 !important;
+}
+
+.delete-btn {
+  color: #f64e60 !important;
+}
+
+.share-btn {
+  color: #0bb783 !important;
+}
+
+/* Content Section */
+.file-manager-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+  background-color: rgba(30, 30, 45, 0.7);
+}
+
+/* List View */
+.file-list-header {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+  padding: 10px 16px;
+  background-color: rgba(42, 42, 60, 0.7);
+  border-bottom: 1px solid #3a3a4c;
+  font-weight: 500;
+  font-size: 13px;
+  color: #6c7293;
+}
+
+.file-list-header > div {
+  cursor: pointer;
+  user-select: none;
+}
+
+.file-list-header > div:hover {
+  color: #fff;
+}
+
+.sort-indicator {
+  margin-left: 4px;
+}
+
+.file-list {
+  padding: 8px;
+  min-height: 200px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 4px;
+}
+
+.file-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.file-item.selected {
+  background-color: rgba(52, 120, 255, 0.2);
+}
+
+.file-icon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.list .file-info {
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr;
+}
+
+.file-name {
+  font-weight: 500;
+}
+
+.file-modified, .file-size {
+  color: #6c7293;
+  font-size: 13px;
+}
+
+.file-shared {
+  color: #0bb783;
+  margin-left: 8px;
+}
+
+/* Grid View */
+.grid.file-manager-content .file-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.grid .file-item {
+  flex-direction: column;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.grid .file-icon {
+  margin: 0 0 12px 0;
+}
+
+.grid .file-info {
+  width: 100%;
+  display: block;
+}
+
+.grid .file-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Drag and Drop */
+.drag-active {
+  background-color: rgba(52, 120, 255, 0.05);
+  border: 2px dashed #3478ff;
+  border-radius: 8px;
+}
+
+.drop-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+  color: #3478ff;
+  font-size: 18px;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #6c7293;
+  font-size: 16px;
+}
+
+/* Folder specific styles */
+.file-item.folder .file-icon {
+  color: #ffa800;
+}
+
+/* File type specific colors */
+.file-item.pdf .file-icon {
+  color: #f64e60;
+}
+
+.file-item.image .file-icon {
+  color: #0bb783;
+}
+
+.file-item.doc .file-icon {
+  color: #3699ff;
+}
+
+.file-item.excel .file-icon {
+  color: #1bc5bd;
+}

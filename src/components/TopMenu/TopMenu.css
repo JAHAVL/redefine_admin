@@ -1,0 +1,256 @@
+/* TopMenu.css */
+.top-menu {
+  background-color: var(--primary-color);
+  padding: 0 15px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  z-index: 1100; /* Higher than SubMenu to ensure proper stacking */
+  border-radius: 0; /* Remove border radius for full width appearance */
+  margin: 0 0 15px 0; /* Keep bottom margin for spacing */
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  width: 100%; /* Ensure it spans the full width */
+  box-sizing: border-box; /* Ensure padding is included in width */
+  position: relative;
+}
+
+.top-menu-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 0 20px;
+}
+
+/* Left section */
+.top-menu-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Logo container styling */
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Church Logo styling based on connect-pages */
+.church-logo-img {
+  height: 40px;
+  width: auto;
+  margin-right: 15px;
+}
+
+.logo-text {
+  font-weight: bold;
+  font-size: 30px;
+  color: var(--text-light);
+  font-family: 'Arial', sans-serif;
+}
+
+.logo-container a {
+  text-decoration: none;
+  color: var(--text-light);
+}
+
+/* Center section - Main navigation icons */
+.main-nav-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-nav-icons ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 60px; /* Match submenu spacing of 60px */
+}
+
+.main-nav-icons li {
+  padding: 0;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.nav-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-light);
+  stroke-width: 2px;
+  transition: transform 0.2s ease;
+}
+
+.nav-icon:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-light);
+}
+
+.nav-icon:hover svg {
+  transform: scale(1.1);
+}
+
+/* Right section */
+.top-menu-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.top-menu-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-icon {
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.header-icon:hover {
+  background-color: var(--hover-bg);
+}
+
+.notification-icon, .message-icon, .theme-toggle {
+  position: relative;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.notification-icon:hover, .message-icon:hover, .theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #3478ff;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* User profile styling */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 50px;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.user-profile:hover {
+  background-color: var(--hover-bg);
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--text-light);
+  color: var(--primary-color);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.user-info {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-light);
+  }
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .user-role {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: none;
+  padding: 0;
+}
+
+.menu-toggle:hover {
+  background-color: #f5f5f5;
+}
+
+/* SVG Icon styling for Connect and Message icons */
+.svg-icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1); /* Make icon white */
+}
+
+@media (max-width: 991px) {
+  .menu-toggle {
+    display: block;
+  }
+  
+  .user-name {
+    display: none;
+  }
+}

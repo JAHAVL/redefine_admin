@@ -1,0 +1,58 @@
+/* TaskManagerPage.css */
+.board-container {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.board-container h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.board-con.task-manager-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Additional styling for TaskManagerWidget integration */
+.task-manager-container .task-manager-widget {
+    flex: 1;
+    height: 100%;
+    overflow: auto;
+}
+
+/* Make sure the task board takes all available space */
+.task-columns-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px;
+}
+
+.widget-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.widget-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #495057;
+  font-size: 1.3rem;
+}
+
+.widget-container p {
+  color: #6c757d;
+  line-height: 1.5;
+}

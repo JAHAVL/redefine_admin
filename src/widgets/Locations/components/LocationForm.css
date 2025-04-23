@@ -1,0 +1,295 @@
+.location-form {
+  width: 100%;
+  color: #fff;
+  padding: 8px;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.location-form-group {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.location-form-label {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.location-form-input {
+  width: 100%;
+  padding: 4px 8px;
+  background-color: rgba(30, 30, 45, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  height: 26px;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.location-form-input:focus {
+  outline: none;
+  border-color: rgba(52, 120, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(52, 120, 255, 0.2);
+}
+
+.location-form-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.location-map-container {
+  width: 100%;
+  height: 120px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 30, 45, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.location-button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.location-submit-button {
+  background-color: rgba(52, 120, 255, 0.8);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(52, 120, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.location-submit-button:hover {
+  background-color: rgba(52, 120, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 120, 255, 0.4);
+}
+
+.location-cancel-button {
+  background-color: rgba(30, 30, 45, 0.6);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.location-cancel-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.location-error-container {
+  background-color: rgba(255, 52, 120, 0.1);
+  border: 1px solid rgba(255, 52, 120, 0.3);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+.location-error-message {
+  color: #ff3478;
+  margin-bottom: 2px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.location-error-message:last-child {
+  margin-bottom: 0;
+}
+
+.location-error-message svg {
+  margin-right: 8px;
+}
+
+.location-form-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments for small screens */
+@media screen and (max-width: 600px) {
+  .location-form-row {
+    flex-direction: row; /* Keep as row to save space */
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  
+  .location-map-container {
+    height: 100px;
+  }
+  
+  .location-form-title {
+    font-size: 13px;
+  }
+  
+  .location-submit-button,
+  .location-cancel-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .location-form-input {
+    height: 24px;
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  
+  .location-form-label {
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+}
+
+.location-form-column {
+  flex: 1;
+  min-width: 0; /* Prevent flex items from overflowing */
+  box-sizing: border-box;
+}
+
+.location-form-help-text {
+  display: none; /* Hide help text to save space */
+}
+
+/* Scope CSS to location form elements only */
+.location-form input,
+.location-form button,
+.location-form div {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+.location-form-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.location-form-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.location-form-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0 0;
+  letter-spacing: 0.3px;
+}
+
+/* Map loading indicator */
+.location-map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 45, 0.7);
+  z-index: 1;
+}
+
+.location-map-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: rgba(52, 120, 255, 0.8);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dark theme adjustments for Google Maps */
+.gm-style {
+  background-color: #1e1e2d !important;
+}
+
+.gm-style-iw {
+  background-color: #2a2a3c !important;
+  color: #fff !important;
+}
+
+.pac-container {
+  background-color: #2a2a3c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.pac-item {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 10px 16px;
+  transition: all 0.2s ease;
+}
+
+.pac-item:hover {
+  background-color: rgba(52, 120, 255, 0.2);
+}
+
+.pac-item-query {
+  color: #fff;
+  font-size: 14px;
+}
+
+.pac-matched {
+  color: #3478ff;
+  font-weight: 600;
+}

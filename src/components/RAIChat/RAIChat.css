@@ -1,0 +1,135 @@
+/* RAIChat.css */
+.rai-chat {
+  position: fixed;
+  top: calc(var(--header-height) + var(--submenu-height) + 10px); /* Align with left menu */
+  right: 0; /* Docked to the right edge */
+  width: var(--rai-width); /* Use the theme variable for width */
+  height: calc(100% - var(--header-height) - var(--submenu-height) - 40px); /* Match left menu height */
+  background-color: var(--chat-bg);
+  border-radius: 10px 0 0 10px; /* Rounded corners only on the left side */
+  border-left: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  border-right: none; /* No right border for docked appearance */
+  box-shadow: -4px 4px 12px var(--shadow-color); /* Shadow only on the left side */
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 999; /* Ensure it appears above everything */
+}
+
+.rai-chat.collapsed {
+  width: var(--sidebar-collapsed-width); /* Match the collapsed sidebar width */
+  right: 0; /* Keep docked to the right edge when collapsed */
+}
+
+.chat-header {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px 0 0 0; /* Match the top-left corner radius */
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.chat-header button {
+  background: transparent;
+  border: 1px solid #ced4da;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chat-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+}
+
+.ai-message {
+  align-self: flex-start;
+  background-color: #f1f3f5;
+  color: #333;
+}
+
+.message-content {
+  position: relative;
+}
+
+.message-content p {
+  margin: 0 0 15px 0;
+}
+
+.message-time {
+  position: absolute;
+  bottom: -15px;
+  right: 5px;
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.user-message .message-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.chat-input button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  color: #007bff;
+}
+
+@media (max-width: 991px) {
+  .rai-chat {
+    display: none;
+  }
+}

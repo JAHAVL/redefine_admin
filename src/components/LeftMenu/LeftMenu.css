@@ -1,0 +1,177 @@
+/* Left Menu Styles */
+.left-menu {
+  position: absolute;
+  left: 10px; /* Restored 10px margin for floating appearance */
+  top: calc(var(--header-height) + var(--submenu-height) + 10px); /* Position properly below menus */
+  width: var(--sidebar-width);
+  height: calc(100% - var(--header-height) - var(--submenu-height) - 40px); /* Account for padding */
+  background-color: var(--left-menu-bg);
+  border-radius: 10px; /* Restored original rounded corners */
+  transition: width 0.3s ease;
+  overflow: hidden;
+  z-index: 40; /* Below SubMenu (90) but above main content base z-index */
+  box-shadow: 0 4px 12px var(--shadow-color); /* Added shadow for floating effect */
+}
+
+/* Collapsed state */
+.left-menu.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* Menu header with collapse button */
+.menu-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--left-menu-bg);
+}
+
+.collapse-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.collapse-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.collapse-button:focus {
+  outline: none;
+}
+
+/* Header Menu */
+.header-menu-main-left {
+  height: calc(100% - 60px);
+  overflow: hidden;
+}
+
+.header-menu-main-left ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header-menu-main-left ul li {
+  position: relative;
+  margin-bottom: 5px;
+  height: 48px; /* Fixed height for menu items */
+  display: flex;
+  align-items: center;
+}
+
+.header-menu-main-left ul li a {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  border-radius: 50px;
+  margin: 0 10px;
+  height: 38px; /* Fixed height for menu item links */
+  width: calc(100% - 20px);
+}
+
+.header-menu-main-left ul li.active a,
+.header-menu-main-left ul li:hover a {
+  background-color: rgba(66, 153, 225, 0.1);
+  color: var(--accent-color);
+}
+
+/* Icon styling - consistent size in both states */
+.menu-icon {
+  display: inline-block;
+  margin-right: 10px;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.task-icon {
+  color: var(--accent-color);
+}
+
+.header-menu-main-left ul li a img,
+.header-menu-main-left ul li a svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Collapsed menu styles */
+.left-menu.collapsed .header-menu-main-left ul li {
+  justify-content: center;
+  /* Keep the same height */
+}
+
+.left-menu.collapsed .header-menu-main-left ul li a {
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+}
+
+.left-menu.collapsed .header-menu-main-left ul li a img,
+.left-menu.collapsed .header-menu-main-left ul li a svg,
+.left-menu.collapsed .menu-icon {
+  margin-right: 0;
+}
+
+/* Better centering for SVG icons */
+.left-menu.collapsed .header-menu-main-left ul li a {
+  position: relative;
+}
+
+.left-menu.collapsed .header-menu-main-left ul li a svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Active state for collapsed menu */
+.left-menu.collapsed .header-menu-main-left ul li.active a {
+  background-color: rgba(52, 120, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(52, 120, 255, 0.3);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .left-menu {
+    width: 70px;
+  }
+  
+  .left-menu .header-menu-main-left ul li a span {
+    display: none;
+  }
+  
+  .left-menu .header-menu-main-left ul li a {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .left-menu .header-menu-main-left ul li a img,
+  .left-menu .header-menu-main-left ul li a svg {
+    margin-right: 0;
+  }
+  
+  .menu-header {
+    display: none;
+  }
+}

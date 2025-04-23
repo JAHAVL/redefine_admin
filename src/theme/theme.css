@@ -1,0 +1,22 @@
+:root {
+  /* Primary brand colors */
+  --primary-color: rgb(255, 65, 65);      /* TopMenu background */
+  --secondary-color: rgb(100, 255, 100);  /* SubMenu background */
+  --accent-color: rgb(255, 255, 0);       /* Main content background */
+  
+  /* Layout colors */
+  --container-bg: transparent;            /* Main container background - transparent */
+  --left-menu-bg: rgb(59, 66, 86);        /* LeftMenu background */
+  --chat-bg: white;                       /* RAI Chat background */
+  --page-bg: #333333;                     /* Overall page background - dark grey */
+  
+  /* Text colors */
+  --text-light: white;                    /* Light text (for dark backgrounds) */
+  --text-dark: #333;                      /* Dark text (for light backgrounds) */
+  --text-muted: rgba(255, 255, 255, 0.7); /* Muted text */
+  
+  /* Border and shadow colors */
+  --border-color: rgba(0, 0, 0, 0.1);     /* Border color */
+  --shadow-color: rgba(0, 0, 0, 0.1);     /* Shadow color */
+  --hover-bg: rgba(255, 255, 255, 0.1);   /* Hover background color */
+}

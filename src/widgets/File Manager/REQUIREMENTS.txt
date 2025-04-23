@@ -1,0 +1,133 @@
+FILE MANAGER WIDGET REQUIREMENTS
+================================
+
+OVERVIEW
+--------
+The File Manager widget is a Dropbox-like file management system that allows users to upload, organize, and manage files and folders. It provides a modern, intuitive interface with drag-and-drop functionality and responsive design. The system supports different access levels for files, allowing some files to be private to specific users, some shared with specific groups, and others accessible to everyone.
+
+DEPENDENCIES
+-----------
+- React: v16.8+ (for hooks support)
+- react-dropzone: For drag-and-drop file upload functionality
+- styled-components: For component styling
+- axios: For API requests
+- TypeScript: For type safety
+
+INSTALLATION
+-----------
+npm install react-dropzone styled-components axios
+
+BACKEND API REQUIREMENTS
+-----------------------
+The File Manager widget requires a backend API that supports the following endpoints:
+
+File Operations:
+- GET /files: List files in a directory
+- GET /files/:id: Get a single file's details
+- POST /files/folder: Create a new folder
+- POST /files/upload: Upload a single file
+- POST /files/upload/multiple: Upload multiple files
+- DELETE /files/:id: Delete a file or folder
+- POST /files/delete/multiple: Delete multiple files/folders
+- PATCH /files/:id: Rename a file or folder
+- PATCH /files/:id/move: Move a file to another folder
+- PATCH /files/:id/share: Toggle file sharing
+- GET /files/:id/download: Download a file
+- GET /files/search: Search for files
+
+API Response Format:
+The API should return file objects with the following structure:
+{
+  id: string;
+  name: string;
+  type: 'folder' | 'file' | 'pdf' | 'image' | 'doc' | 'excel';
+  size: number | null;
+  modified: string;
+  shared: boolean;
+  parentId?: string;
+  access: 'private' | 'shared' | 'public';
+  owner_id?: string;
+  shared_with?: string[];
+}
+
+FEATURES
+--------
+1. File Browser
+   - Grid and list views
+   - Sorting by name, date, and size
+   - Breadcrumb navigation
+   - File type icons
+   - Visual indicators for file access levels (private, shared, public)
+
+2. File Operations
+   - Upload files via drag-and-drop
+   - Create new folders
+   - Delete files and folders
+   - Rename files and folders
+   - Move files between folders
+   - Share files with specific users or groups
+   - Change file access permissions
+
+3. Search
+   - Search files by name
+   - Filter by file type
+   - Filter by access level (private, shared, public)
+
+4. UI Components
+   - File list/grid display
+   - File upload area
+   - Folder navigation
+   - Action buttons
+   - Search input
+
+BROWSER COMPATIBILITY
+--------------------
+- Chrome (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)
+- Edge (latest 2 versions)
+
+ACCESSIBILITY
+------------
+- Keyboard navigation support
+- ARIA attributes for screen readers
+- Sufficient color contrast
+- Focus indicators
+
+PERFORMANCE CONSIDERATIONS
+-------------------------
+- Lazy loading for large file lists
+- Optimized file uploads
+- Debounced search
+- Virtualized lists for performance
+
+SECURITY REQUIREMENTS
+--------------------
+- Authentication via JWT tokens
+- File type validation
+- File size limits
+- CSRF protection
+- Permission-based access control
+- Encryption for sensitive files
+- Audit logging for file access and modifications
+
+STORAGE AND DATABASE REQUIREMENTS
+-------------------------------
+- Physical file storage on the server or cloud storage service
+- Database tables for:
+  - Files and folders metadata
+  - User permissions and access control
+  - File sharing relationships
+  - File version history
+  - Tags and categories
+
+ENVIRONMENT VARIABLES
+--------------------
+- REACT_APP_API_BASE_URL: Base URL for the API
+
+INTEGRATION INSTRUCTIONS
+-----------------------
+1. Import the FileManagerWidget component
+2. Ensure API endpoints are properly configured
+3. Set up authentication to provide access tokens
+4. Configure environment variables

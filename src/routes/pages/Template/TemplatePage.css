@@ -1,0 +1,31 @@
+.widget-container {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.empty-widget-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  color: #ffffff;
+  background-color: rgb(128, 0, 128); /* Purple */
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.empty-widget-placeholder h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #e2e8f0;
+}
+
+.empty-widget-placeholder p {
+  font-size: 16px;
+  color: #a0aec0;
+}

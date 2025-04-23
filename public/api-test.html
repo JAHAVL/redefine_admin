@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #444;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Laravel API Connection</h2>
+        <p>This tool will test various API endpoints to find the correct URL structure for your Laravel backend.</p>
+        
+        <div>
+            <label for="base-url">Base URL:</label>
+            <input type="text" id="base-url" value="http://localhost:8001" style="width: 300px;">
+        </div>
+        
+        <div>
+            <label for="endpoint">Endpoint:</label>
+            <select id="endpoint">
+                <option value="/api/v1/test">GET /api/v1/test</option>
+                <option value="/v1/test">GET /v1/test</option>
+                <option value="/test">GET /test</option>
+                <option value="/api/test">GET /api/test</option>
+                <option value="/api/v1/widgets/file-share-users/search">POST /api/v1/widgets/file-share-users/search</option>
+                <option value="/v1/widgets/file-share-users/search">POST /v1/widgets/file-share-users/search</option>
+                <option value="/api/widgets/file-share-users/search">POST /api/widgets/file-share-users/search</option>
+                <option value="/widgets/file-share-users/search">POST /widgets/file-share-users/search</option>
+                <option value="/api/v1/share-groups/1/add-members">POST /api/v1/share-groups/1/add-members</option>
+                <option value="/v1/share-groups/1/add-members">POST /v1/share-groups/1/add-members</option>
+                <option value="/api/share-groups/1/add-members">POST /api/share-groups/1/add-members</option>
+                <option value="/share-groups/1/add-members">POST /share-groups/1/add-members</option>
+            </select>
+        </div>
+        
+        <button id="test-api">Test API Connection</button>
+        
+        <div id="api-result" class="result">Results will appear here...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Custom API Request</h2>
+        <p>Try a custom API request with your own URL and method.</p>
+        
+        <div>
+            <label for="custom-url">Full URL:</label>
+            <input type="text" id="custom-url" value="http://localhost:8001/api/v1/test" style="width: 300px;">
+        </div>
+        
+        <div>
+            <label for="custom-method">Method:</label>
+            <select id="custom-method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="custom-body">Request Body (JSON):</label>
+            <textarea id="custom-body" rows="4" style="width: 100%;">{
+  "search": "test"
+}</textarea>
+        </div>
+        
+        <button id="custom-test">Send Custom Request</button>
+        
+        <div id="custom-result" class="result">Results will appear here...</div>
+    </div>
+    
+    <script>
+        document.getElementById('test-api').addEventListener('click', function() {
+            const baseUrl = document.getElementById('base-url').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const url = baseUrl + endpoint;
+            const resultDiv = document.getElementById('api-result');
+            
+            resultDiv.innerHTML = 'Testing connection to ' + url + '...';
+            resultDiv.className = 'result';
+            
+            const method = endpoint.includes('/test') ? 'GET' : 'POST';
+            const body = method === 'POST' ? JSON.stringify({ search: 'test' }) : null;
+            
+            testApiConnection(url, method, body, resultDiv);
+        });
+        
+        document.getElementById('custom-test').addEventListener('click', function() {
+            const url = document.getElementById('custom-url').value;
+            const method = document.getElementById('custom-method').value;
+            const body = document.getElementById('custom-body').value;
+            const resultDiv = document.getElementById('custom-result');
+            
+            resultDiv.innerHTML = 'Sending ' + method + ' request to ' + url + '...';
+            resultDiv.className = 'result';
+            
+            let parsedBody = null;
+            try {
+                parsedBody = body ? JSON.parse(body) : null;
+            } catch (e) {
+                resultDiv.innerHTML = 'Error parsing JSON body: ' + e.message;
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            testApiConnection(url, method, parsedBody ? JSON.stringify(parsedBody) : null, resultDiv);
+        });
+        
+        function testApiConnection(url, method, body, resultDiv) {
+            const options = {
+                method: method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Origin': window.location.origin,
+                    'Referer': window.location.href
+                },
+                credentials: 'include'
+            };
+            
+            if (body) {
+                options.body = body;
+            }
+            
+            fetch(url, options)
+                .then(response => {
+                    const statusInfo = `Status: ${response.status} ${response.statusText}`;
+                    
+                    // Try to parse as JSON, but fall back to text if it's not JSON
+                    return response.text().then(text => {
+                        try {
+                            return {
+                                status: response.status,
+                                statusText: response.statusText,
+                                headers: response.headers,
+                                data: JSON.parse(text)
+                            };
+                        } catch (e) {
+                            return {
+                                status: response.status,
+                                statusText: response.statusText,
+                                headers: response.headers,
+                                data: text
+                            };
+                        }
+                    });
+                })
+                .then(result => {
+                    const headersObj = {};
+                    result.headers.forEach((value, key) => {
+                        headersObj[key] = value;
+                    });
+                    
+                    const output = `Status: ${result.status} ${result.statusText}\n\nHeaders:\n${JSON.stringify(headersObj, null, 2)}\n\nResponse Body:\n${typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : result.data}`;
+                    
+                    resultDiv.innerHTML = output;
+                    
+                    if (result.status >= 200 && result.status < 300) {
+                        resultDiv.className = 'result success';
+                    } else {
+                        resultDiv.className = 'result error';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = 'Error: ' + error.message;
+                    resultDiv.className = 'result error';
+                });
+        }
+    </script>
+</body>
+</html>
