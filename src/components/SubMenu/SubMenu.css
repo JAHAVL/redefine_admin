@@ -49,8 +49,9 @@
 }
 
 .sub-menu li.active {
-  background-color: var(--hover-bg); /* Using theme hover variable */
-  color: var(--accent-color);
+  background-color: rgba(66, 153, 225, 0.1); /* Blue glow similar to LeftMenu */
+  color: var(--accent-color); /* Accent color for active item */
+  box-shadow: 0 0 8px rgba(66, 153, 225, 0.3); /* Subtle glow effect */
   font-weight: 500;
 }
 
@@ -90,7 +91,9 @@
 }
 
 .centered-icons li.active {
-  background-color: var(--hover-bg); /* Using theme hover variable */
+  background-color: rgba(66, 153, 225, 0.15); /* Blue glow similar to LeftMenu */
+  box-shadow: 0 0 8px rgba(66, 153, 225, 0.3); /* Subtle glow effect */
+  color: var(--accent-color); /* Accent color for active icon */
 }
 
 .centered-icons .menu-icon {
@@ -100,9 +103,9 @@
   color: var(--text-light); /* Using theme text variable */
 }
 
-/* Ensure SVG icons are also white */
-.centered-icons .menu-icon svg {
-  stroke: var(--text-light); /* Using theme text variable */
+/* Ensure SVG icons are also colored correctly when active */
+.centered-icons li.active .menu-icon svg {
+  stroke: var(--accent-color); /* Blue accent color for the active icon */
 }
 
 @media (max-width: 768px) {

@@ -18,6 +18,8 @@ let FileText: IconComponent;
 let ClipboardList: IconComponent;
 let Star: IconComponent;
 let Clock: IconComponent;
+let Folder: IconComponent;
+let Users: IconComponent;
 
 try {
   const icons = require('lucide-react');
@@ -26,6 +28,8 @@ try {
   ClipboardList = icons.ClipboardList || icons.ListTodo;
   Star = icons.Star;
   Clock = icons.Clock;
+  Folder = icons.Folder;
+  Users = icons.Users;
 } catch (e) {
   // Fallback SVG components if lucide-react is not available
   Calendar = (props: IconProps) => (
@@ -65,6 +69,19 @@ try {
       <polyline points="12 6 12 12 16 14"></polyline>
     </svg>
   );
+  Folder = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+    </svg>
+  );
+  Users = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+  );
 }
 
 interface SubMenuItem {
@@ -83,22 +100,65 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Generate 4 placeholder icon menu items
-  const menuItems: SubMenuItem[] = [
-    { id: 'one', label: '', icon: Calendar, path: '/placeholder-one' },
-    { id: 'two', label: '', icon: FileText, path: '/placeholder-two' },
-    { id: 'three', label: '', icon: Star, path: '/placeholder-three' },
-    { id: 'four', label: '', icon: ClipboardList, path: '/placeholder-four' }
-  ];
+  let menuItems: SubMenuItem[] = [];
+
+  // Define menu items based on the main section
+  switch (mainSection) {
+    case 'file-manager':
+      menuItems = [
+        { id: 'files', label: '', icon: Folder, path: '/file-manager-new' },
+        { id: 'groups', label: '', icon: Users, path: '/file-manager-new/groups' },
+      ];
+      break;
+    default:
+      // Generate default placeholder icon menu items
+      menuItems = [
+        { id: 'one', label: '', icon: Calendar, path: '/placeholder-one' },
+        { id: 'two', label: '', icon: FileText, path: '/placeholder-two' },
+        { id: 'three', label: '', icon: Star, path: '/placeholder-three' },
+        { id: 'four', label: '', icon: ClipboardList, path: '/placeholder-four' }
+      ];
+  }
 
   // Handle menu item click
   const handleItemClick = (path: string) => {
     navigate(path);
   };
 
-  // Check if an item is active
-  const isActive = (id: string) => {
-    return id === activeItem || location.pathname.includes(id);
+  // Check if an item is active based on the current URL path
+  const isActive = (item: SubMenuItem) => {
+    const currentPath = location.pathname.toLowerCase();
+    const itemPath = item.path.toLowerCase();
+    
+    // Exact match
+    if (currentPath === itemPath) return true;
+    
+    // For the 'files' item, it should be active when exactly on file-manager-new path
+    if (item.id === 'files' && currentPath === '/file-manager-new') return true;
+    
+    // For the 'groups' item, it should be active when on file-manager-new/groups path
+    if (item.id === 'groups' && currentPath === '/file-manager-new/groups') return true;
+    
+    return false;
+  };
+
+  const liStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    padding: '8px',
+    margin: '4px'
+  };
+
+  const iconStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 0,
+    padding: 0
   };
 
   return (
@@ -107,10 +167,11 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
         {menuItems.map((item) => (
           <li 
             key={item.id} 
-            className={isActive(item.id) ? 'active' : ''}
+            className={isActive(item) ? 'active' : ''}
             onClick={() => handleItemClick(item.path)}
+            style={liStyle}
           >
-            {item.icon && <span className="menu-icon"><item.icon size={20} /></span>}
+            {item.icon && <span className="menu-icon" style={iconStyle}><item.icon size={20} /></span>}
           </li>
         ))}
       </ul>

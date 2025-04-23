@@ -72,7 +72,7 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ activeItem = 'dashboard', onCollaps
     { id: 'locations', label: 'Locations', icon: 'map-pin', iconComponent: MapPin, link: '/locations' },
     { id: 'system-posts', label: 'System Posts', icon: 'file-edit', iconComponent: FileEdit, link: '/system-posts' },
     { id: 'task-manager', label: 'Task Manager', icon: 'task', iconComponent: Calendar, link: '/task-manager' },
-    { id: 'file-manager', label: 'File Manager', icon: 'file', iconComponent: FileEdit, link: '/file-manager' },
+    { id: 'file-manager', label: 'File Manager', icon: 'file', iconComponent: FileEdit, link: '/file-manager-new' },
     { id: 'mail', label: 'Mail', icon: 'mail', iconComponent: FileEdit, link: '/mail' },
   ];
 

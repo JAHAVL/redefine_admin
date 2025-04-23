@@ -35,6 +35,12 @@ const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
   // Get the current section from the URL path
   const getCurrentSection = (): string => {
     const path = location.pathname.split('/')[1] || 'dashboard';
+    
+    // Map file-manager-new to file-manager section
+    if (path === 'file-manager-new') {
+      return 'file-manager';
+    }
+    
     return path;
   };
 

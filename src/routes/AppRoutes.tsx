@@ -11,8 +11,11 @@ import TemplatePage from './pages/Template/TemplatePage';
 import MailPage from './pages/Mail/MailPage';
 import MailTemplatesPage from './pages/Mail/MailTemplatesPage';
 import MailSettingsPage from './pages/Mail/MailSettingsPage';
-import FileManagerPage from './pages/File Manager/FileManagerPage';
 import GroupsPage from './pages/File Manager/GroupsPage';
+
+// New Template-Based Pages
+import FileManagerPageNEW from '../pages/File Manager/FileManagerPageNEW';
+import GroupsPageNEW from '../pages/File Manager/GroupsPageNEW';
 
 // Locations Pages
 import LocationsPage from './pages/Locations/LocationsPage';
@@ -27,7 +30,7 @@ import FinancePage from './pages/finance/FinancePage';
 import SchedulerPage from './pages/scheduler/SchedulerPage';
 
 // Templates
-import AdminTemplatePage from '../pages/templates/AdminTemplatePage';
+import AdminTemplatePageComponent from '../pages/templates/admin_template_page';
 
 import NotFoundPage from './pages/NotFoundPage';
 import GivingPage from './pages/giving/GivingPage';
@@ -56,12 +59,17 @@ const AppRoutes: React.FC = () => {
                 element={<ProtectedRoute component={MailSettingsPage} />} 
             />
             <Route 
-                path="/file-manager" 
-                element={<ProtectedRoute component={FileManagerPage} />} 
-            />
-            <Route 
                 path="/file-manager/groups" 
                 element={<ProtectedRoute component={GroupsPage} />} 
+            />
+            {/* New Template-Based Routes */}
+            <Route 
+                path="/file-manager-new" 
+                element={<ProtectedRoute component={FileManagerPageNEW} />} 
+            />
+            <Route 
+                path="/file-manager-new/groups" 
+                element={<ProtectedRoute component={GroupsPageNEW} />} 
             />
             {/* Giving Route */}
             <Route 
@@ -147,7 +155,11 @@ const AppRoutes: React.FC = () => {
             {/* Templates */}
             <Route 
                 path="/templates/admin" 
-                element={<ProtectedRoute component={AdminTemplatePage} />} 
+                element={<ProtectedRoute component={AdminTemplatePageComponent} />} 
+            />
+            <Route 
+                path="/admin/template" 
+                element={<ProtectedRoute component={AdminTemplatePageComponent} />} 
             />
             <Route 
                 path="*" 

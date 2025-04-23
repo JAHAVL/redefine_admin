@@ -5,7 +5,7 @@ import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate
  * Admin Template Page component
  * Uses the master template and provides a container for widget content
  */
-const AdminTemplatePage: React.FC = () => {
+const AdminTemplatePageComponent: React.FC = () => {
   return (
     <MainPageTemplate pageTitle="Admin Template">
       <div className="widget-container" style={{ padding: '20px' }}>
@@ -15,4 +15,4 @@ const AdminTemplatePage: React.FC = () => {
   );
 };
 
-export default AdminTemplatePage;
+export default AdminTemplatePageComponent;
