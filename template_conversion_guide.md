@@ -14,6 +14,7 @@ This document outlines the complete step-by-step process for converting existing
 8. [Step 7: Delete Original Page](#step-7-delete-original-page)
 9. [Troubleshooting](#troubleshooting)
 10. [Example: File Manager Conversion](#example-file-manager-conversion)
+11. [Alternative Patterns](#alternative-patterns)
 
 ## Prerequisites
 
@@ -353,3 +354,72 @@ const getCurrentSection = (): string => {
 ```bash
 rm 'src/pages/File Manager/FileManagerPage.tsx'
 rm 'src/pages/File Manager/GroupsPage.tsx'
+
+```
+
+## Alternative Patterns
+
+### Single Component for Multiple Routes
+
+In some cases, you might have a single page component that handles multiple routes/sub-pages. For example, the Finance section uses a single `FinancePageNEW.tsx` component for all finance routes (`/finance-new`, `/finance-new/transactions`, etc.).
+
+This pattern works when:
+
+1. The original page already follows this pattern (one component for multiple routes)
+2. The widget rendered by the page has internal routing logic to display different content based on the URL
+
+To implement this pattern:
+
+1. Create just one new template-based page component
+2. Add all routes in AppRoutes.tsx pointing to the same component
+3. Update the SubMenu to include icons for all sub-routes
+4. Update the isActive function to handle all the routes:
+
+```tsx
+// Finance section active states
+if (item.id === 'overview' && currentPath === '/finance-new') return true;
+if (item.id === 'transactions' && currentPath === '/finance-new/transactions') return true;
+if (item.id === 'accounts' && currentPath === '/finance-new/accounts') return true;
+// etc...
+```
+
+### Example: Finance Page Conversion
+
+```tsx
+// src/pages/finance/FinancePageNEW.tsx
+import React from 'react';
+import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import FinanceWidget from '../../widgets/financewidget';
+
+const FinancePageNEW: React.FC = () => {
+  return (
+    <MainPageTemplate pageTitle="Finance">
+      <div className="widget-container" style={{ padding: '20px' }}>
+        <FinanceWidget />
+      </div>
+    </MainPageTemplate>
+  );
+};
+
+export default FinancePageNEW;
+```
+
+In AppRoutes.tsx, all finance routes point to the same component:
+
+```tsx
+<Route 
+    path="/finance-new" 
+    element={<ProtectedRoute component={FinancePageNEW} />} 
+/>
+<Route 
+    path="/finance-new/transactions" 
+    element={<ProtectedRoute component={FinancePageNEW} />} 
+/>
+<Route 
+    path="/finance-new/accounts" 
+    element={<ProtectedRoute component={FinancePageNEW} />} 
+/>
+// etc...
+```
+
+The FinanceWidget itself would then determine what content to show based on the current route.

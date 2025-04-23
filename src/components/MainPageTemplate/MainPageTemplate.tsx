@@ -40,6 +40,10 @@ const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
     if (path === 'file-manager-new') {
       return 'file-manager';
     }
+    // Map finance-new to finance section
+    if (path === 'finance-new') {
+      return 'finance';
+    }
     
     return path;
   };

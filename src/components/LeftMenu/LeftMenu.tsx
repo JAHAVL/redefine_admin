@@ -68,6 +68,7 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ activeItem = 'dashboard', onCollaps
     { id: 'groups', label: 'Groups', icon: 'https://images.ctfassets.net/1itkm9rji8jb/4X5RS42wn101bgkUkdQqF0/2b5fe2c4b5a56b3fda01fd2b66a955de/ico-group.svg', link: '/groups' },
     { id: 'kids', label: 'Kids', icon: 'https://images.ctfassets.net/1itkm9rji8jb/1Qy0TsteEmKbYWTPuaSZSG/faa5a80eadea3cec0e5cc5ed381f1c34/ico-kid.svg', link: '/kids' },
     { id: 'giving', label: 'Giving', icon: 'https://images.ctfassets.net/1itkm9rji8jb/2Tm3pHUA0oiUCmU5nsT4l4/a7e43a934909b17de1d9af6837ddfb02/ico-giving.svg', link: '/giving' },
+    { id: 'finance', label: 'Finance', icon: 'dollar-sign', iconComponent: DollarSign, link: '/finance-new' },
     { id: 'livestream', label: 'Live Stream', icon: 'https://images.ctfassets.net/1itkm9rji8jb/6lyyozpxIzbB1ESrcbFC1v/27d14aac52adc9aaada713d7b48f7b22/ico-stream.svg', link: '/livestream' },
     { id: 'locations', label: 'Locations', icon: 'map-pin', iconComponent: MapPin, link: '/locations' },
     { id: 'system-posts', label: 'System Posts', icon: 'file-edit', iconComponent: FileEdit, link: '/system-posts' },

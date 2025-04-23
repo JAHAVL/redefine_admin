@@ -20,6 +20,11 @@ let Star: IconComponent;
 let Clock: IconComponent;
 let Folder: IconComponent;
 let Users: IconComponent;
+let DollarSign: IconComponent;
+let CreditCard: IconComponent;
+let Book: IconComponent;
+let FileSpreadsheet: IconComponent;
+let FileCheck: IconComponent;
 
 try {
   const icons = require('lucide-react');
@@ -30,6 +35,11 @@ try {
   Clock = icons.Clock;
   Folder = icons.Folder;
   Users = icons.Users;
+  DollarSign = icons.DollarSign;
+  CreditCard = icons.CreditCard;
+  Book = icons.Book;
+  FileSpreadsheet = icons.FileSpreadsheet || icons.File;
+  FileCheck = icons.FileCheck || icons.CheckSquare;
 } catch (e) {
   // Fallback SVG components if lucide-react is not available
   Calendar = (props: IconProps) => (
@@ -82,6 +92,38 @@ try {
       <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
     </svg>
   );
+  DollarSign = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="1" x2="12" y2="23"></line>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+    </svg>
+  );
+  CreditCard = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2"></rect>
+      <line x1="1" y1="10" x2="23" y2="10"></line>
+    </svg>
+  );
+  Book = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+    </svg>
+  );
+  FileSpreadsheet = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2"></rect>
+      <rect x="9" y="8" width="6" height="6"></rect>
+      <line x1="15" y1="8" x2="15" y2="8"></line>
+    </svg>
+  );
+  FileCheck = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"></path>
+      <polyline points="15 7 20 12 15 17"></polyline>
+      <polyline points="4 4 4 12 8 12"></polyline>
+    </svg>
+  );
 }
 
 interface SubMenuItem {
@@ -108,6 +150,16 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
       menuItems = [
         { id: 'files', label: '', icon: Folder, path: '/file-manager-new' },
         { id: 'groups', label: '', icon: Users, path: '/file-manager-new/groups' },
+      ];
+      break;
+    case 'finance':
+      menuItems = [
+        { id: 'overview', label: '', icon: DollarSign, path: '/finance-new' },
+        { id: 'transactions', label: '', icon: CreditCard, path: '/finance-new/transactions' },
+        { id: 'accounts', label: '', icon: Book, path: '/finance-new/accounts' },
+        { id: 'reports', label: '', icon: FileSpreadsheet, path: '/finance-new/reports' },
+        { id: 'statements', label: '', icon: FileText, path: '/finance-new/statements' },
+        { id: 'reconciliation', label: '', icon: FileCheck, path: '/finance-new/reconciliation' },
       ];
       break;
     default:
@@ -138,6 +190,14 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     
     // For the 'groups' item, it should be active when on file-manager-new/groups path
     if (item.id === 'groups' && currentPath === '/file-manager-new/groups') return true;
+    
+    // Finance section active states
+    if (item.id === 'overview' && currentPath === '/finance-new') return true;
+    if (item.id === 'transactions' && currentPath === '/finance-new/transactions') return true;
+    if (item.id === 'accounts' && currentPath === '/finance-new/accounts') return true;
+    if (item.id === 'reports' && currentPath === '/finance-new/reports') return true;
+    if (item.id === 'statements' && currentPath === '/finance-new/statements') return true;
+    if (item.id === 'reconciliation' && currentPath === '/finance-new/reconciliation') return true;
     
     return false;
   };

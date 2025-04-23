@@ -16,6 +16,7 @@ import GroupsPage from './pages/File Manager/GroupsPage';
 // New Template-Based Pages
 import FileManagerPageNEW from '../pages/File Manager/FileManagerPageNEW';
 import GroupsPageNEW from '../pages/File Manager/GroupsPageNEW';
+import FinancePageNEW from '../pages/finance/FinancePageNEW';
 
 // Locations Pages
 import LocationsPage from './pages/Locations/LocationsPage';
@@ -114,6 +115,31 @@ const AppRoutes: React.FC = () => {
             <Route 
                 path="/finance/reports" 
                 element={<ProtectedRoute component={FinancePage} />} 
+            />
+            {/* New Template-Based Finance Routes */}
+            <Route 
+                path="/finance-new" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/transactions" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/accounts" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/reports" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/statements" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
+            />
+            <Route 
+                path="/finance-new/reconciliation" 
+                element={<ProtectedRoute component={FinancePageNEW} />} 
             />
             {/* Scheduler Routes */}
             <Route 
