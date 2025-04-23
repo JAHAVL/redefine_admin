@@ -135,15 +135,13 @@ const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
           style={{
             position: 'absolute',
             marginLeft: leftMenuCollapsed ? '90px' : '260px',  
-            marginRight: raiChatExpanded ? '310px' : '80px',   
+            right: raiChatExpanded ? 'calc(var(--rai-width) + 10px)' : 'calc(var(--sidebar-collapsed-width) + 10px)',   
             width: 'auto',
-            backgroundColor: 'var(--accent-color)', 
-            // Adjusted to 30px for more balanced spacing
+            backgroundColor: 'transparent', 
             top: 'calc(var(--header-height) + var(--submenu-height) + 30px)', 
             height: 'auto', 
             bottom: '20px', 
             transition: 'all 0.3s ease',
-            // Force a much higher z-index while still below top menu and submenu
             zIndex: 80 
           }}
         >

@@ -1,0 +1,17 @@
+/* RAI Chat Theme - Colors and Styles ONLY (No layout, size, or spacing) */
+
+:root {
+  /* RAI Chat specific colors */
+  --rai-bg: rgba(32, 32, 32, 0.7);          /* Semi-transparent dark background */
+  --rai-border: rgba(52, 120, 255, 0.3);    /* Subtle blue border */
+  --rai-header-bg: rgba(32, 32, 32, 0.85);  /* Slightly darker header */
+  --rai-shadow: rgba(0, 0, 0, 0.2);         /* Subtle shadow */
+  --rai-text: #ffffff;                      /* White text */
+  --rai-text-secondary: rgba(255, 255, 255, 0.7); /* Secondary text */
+  --rai-input-bg: rgba(25, 25, 25, 0.7);    /* Input background */
+  --rai-input-border: rgba(52, 120, 255, 0.2); /* Input border */
+  --rai-button-bg: #3478ff;                 /* Button background */
+  --rai-button-hover: rgba(52, 120, 255, 0.8); /* Button hover */
+  --rai-user-msg-bg: rgba(52, 120, 255, 0.2); /* User message background */
+  --rai-ai-msg-bg: rgba(25, 25, 25, 0.5);   /* AI message background */
+}
