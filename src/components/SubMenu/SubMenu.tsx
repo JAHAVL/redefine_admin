@@ -162,6 +162,35 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
         { id: 'reconciliation', label: '', icon: FileCheck, path: '/finance-new/reconciliation' },
       ];
       break;
+    case 'locations':
+      menuItems = [
+        { id: 'overview', label: '', icon: Folder, path: '/locations-new' },
+        { id: 'map', label: '', icon: FileText, path: '/locations-new/map' },
+        { id: 'analytics', label: '', icon: FileSpreadsheet, path: '/locations-new/analytics' },
+        { id: 'settings', label: '', icon: FileCheck, path: '/locations-new/settings' },
+      ];
+      break;
+    case 'mail':
+      menuItems = [
+        { id: 'overview', label: '', icon: Folder, path: '/mail-new' },
+        { id: 'templates', label: '', icon: FileText, path: '/mail-new/templates' },
+        { id: 'settings', label: '', icon: FileCheck, path: '/mail-new/settings' },
+      ];
+      break;
+    case 'task-manager':
+      menuItems = [
+        { id: 'overview', label: '', icon: Calendar, path: '/task-manager-new' },
+        // Add more task manager submenu items if needed in the future
+      ];
+      break;
+    case 'schedule':
+      menuItems = [
+        { id: 'overview', label: '', icon: Calendar, path: '/scheduler-new' },
+        { id: 'series', label: '', icon: FileText, path: '/scheduler-new/series' },
+        { id: 'teams', label: '', icon: Users, path: '/scheduler-new/teams' },
+        { id: 'songs', label: '', icon: FileSpreadsheet, path: '/scheduler-new/songs' },
+      ];
+      break;
     default:
       // Generate default placeholder icon menu items
       menuItems = [
@@ -196,6 +225,26 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     if (item.id === 'reports' && currentPath === '/finance-new/reports') return true;
     if (item.id === 'statements' && currentPath === '/finance-new/statements') return true;
     if (item.id === 'reconciliation' && currentPath === '/finance-new/reconciliation') return true;
+    
+    // Locations section
+    if (item.id === 'overview' && currentPath === '/locations-new') return true;
+    if (item.id === 'map' && currentPath === '/locations-new/map') return true;
+    if (item.id === 'analytics' && currentPath === '/locations-new/analytics') return true;
+    if (item.id === 'settings' && currentPath === '/locations-new/settings') return true;
+    
+    // Mail section
+    if (item.id === 'overview' && currentPath === '/mail-new') return true;
+    if (item.id === 'templates' && currentPath === '/mail-new/templates') return true;
+    if (item.id === 'settings' && currentPath === '/mail-new/settings') return true;
+    
+    // Task Manager section
+    if (item.id === 'overview' && currentPath === '/task-manager-new') return true;
+    
+    // Scheduler section
+    if (item.id === 'overview' && currentPath === '/scheduler-new') return true;
+    if (item.id === 'series' && currentPath.startsWith('/scheduler-new/series')) return true;
+    if (item.id === 'teams' && currentPath === '/scheduler-new/teams') return true;
+    if (item.id === 'songs' && currentPath === '/scheduler-new/songs') return true;
     
     return false;
   };

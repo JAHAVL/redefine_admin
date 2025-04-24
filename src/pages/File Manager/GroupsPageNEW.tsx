@@ -3,13 +3,16 @@ import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate
 
 /**
  * Groups Page component for File Manager
- * Uses the master template and provides a container for widget content
+ * Uses MainPageTemplate with empty content
+ * Ready for a new widget implementation
  */
 const GroupsPageNEW: React.FC = () => {
   return (
     <MainPageTemplate pageTitle="File Groups">
-      <div className="widget-container" style={{ padding: '20px' }}>
-        {/* Widget content will be loaded here */}
+      <div style={{ padding: '20px' }}>
+        {/* Placeholder for new groups widget */}
+        <h2>File Groups</h2>
+        <p>Ready for new implementation</p>
       </div>
     </MainPageTemplate>
   );

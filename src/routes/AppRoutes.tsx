@@ -16,19 +16,29 @@ import GroupsPage from './pages/File Manager/GroupsPage';
 // New Template-Based Pages
 import FileManagerPageNEW from '../pages/File Manager/FileManagerPageNEW';
 import GroupsPageNEW from '../pages/File Manager/GroupsPageNEW';
-import FinancePageNEW from '../pages/finance/FinancePageNEW';
 import FinanceDashboardPageNEW from '../pages/finance/FinanceDashboardPageNEW';
 import TransactionsPageNEW from '../pages/finance/TransactionsPageNEW';
 import AccountsPageNEW from '../pages/finance/AccountsPageNEW';
 import ReportsPageNEW from '../pages/finance/ReportsPageNEW';
 import ReconciliationPageNEW from '../pages/finance/ReconciliationPageNEW';
 import StatementsPageNEW from '../pages/finance/StatementsPageNEW';
+import LocationsPageNEW from '../pages/Locations/LocationsPageNEW';
+import MapViewPageNEW from '../pages/Locations/MapViewPageNEW';
+import AnalyticsPageNEW from '../pages/Locations/AnalyticsPageNEW';
+import SettingsPageNEW from '../pages/Locations/SettingsPageNEW';
+import MailPageNEW from '../pages/Mail/MailPageNEW';
+import MailSettingsPageNEW from '../pages/Mail/MailSettingsPageNEW';
+import MailTemplatesPageNEW from '../pages/Mail/MailTemplatesPageNEW';
+import TaskManagerPageNEW from '../pages/TaskManagerPage/TaskManagerPageNEW';
+import SchedulerPageNEW from '../pages/scheduler/SchedulerPageNEW';
 
-// Locations Pages
-import LocationsPage from './pages/Locations/LocationsPage';
-import MapViewPage from './pages/Locations/MapViewPage';
-import SettingsPage from './pages/Locations/SettingsPage';
-import AnalyticsPage from './pages/Locations/AnalyticsPage';
+// Locations Pages - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
+/*
+import LocationsPage from '../pages/Locations/LocationsPage';
+import MapViewPage from '../pages/Locations/MapViewPage';
+import AnalyticsPage from '../pages/Locations/AnalyticsPage';
+import SettingsPage from '../pages/Locations/SettingsPage';
+*/
 
 // Finance Pages
 import FinancePage from './pages/finance/FinancePage';
@@ -42,6 +52,9 @@ import AdminTemplatePageComponent from '../pages/templates/admin_template_page';
 import NotFoundPage from './pages/NotFoundPage';
 import GivingPage from './pages/giving/GivingPage';
 
+// Test Pages
+import PathTestPage from '../pages/test/PathTestPage';
+
 const AppRoutes: React.FC = () => {
     return (
         <Routes>
@@ -53,23 +66,42 @@ const AppRoutes: React.FC = () => {
                 path="/" 
                 element={<ProtectedRoute component={TemplatePage} />} 
             />
+            {/* Mail Routes - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
             <Route 
                 path="/mail" 
                 element={<ProtectedRoute component={MailPage} />} 
-            />
-            <Route 
-                path="/mail/templates" 
-                element={<ProtectedRoute component={MailTemplatesPage} />} 
             />
             <Route 
                 path="/mail/settings" 
                 element={<ProtectedRoute component={MailSettingsPage} />} 
             />
             <Route 
+                path="/mail/templates" 
+                element={<ProtectedRoute component={MailTemplatesPage} />} 
+            />
+            */}
+            
+            {/* New Template-Based Mail Routes */}
+            <Route 
+                path="/mail-new" 
+                element={<ProtectedRoute component={MailPageNEW} />} 
+            />
+            <Route 
+                path="/mail-new/settings" 
+                element={<ProtectedRoute component={MailSettingsPageNEW} />} 
+            />
+            <Route 
+                path="/mail-new/templates" 
+                element={<ProtectedRoute component={MailTemplatesPageNEW} />} 
+            />
+            {/* File Manager Routes - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
+            <Route 
                 path="/file-manager/groups" 
                 element={<ProtectedRoute component={GroupsPage} />} 
             />
-            {/* New Template-Based Routes */}
+            */}
+            
+            {/* New Template-Based File Manager Routes */}
             <Route 
                 path="/file-manager-new" 
                 element={<ProtectedRoute component={FileManagerPageNEW} />} 
@@ -83,7 +115,7 @@ const AppRoutes: React.FC = () => {
                 path="/admin/giving" 
                 element={<ProtectedRoute component={GivingPage} />} 
             />
-            {/* Locations Routes */}
+            {/* Locations Routes - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
             <Route 
                 path="/locations" 
                 element={<ProtectedRoute component={LocationsPage} />} 
@@ -100,10 +132,41 @@ const AppRoutes: React.FC = () => {
                 path="/locations/analytics" 
                 element={<ProtectedRoute component={AnalyticsPage} />} 
             />
+            */}
+            
+            {/* New Template-Based Locations Routes */}
+            <Route 
+                path="/locations-new" 
+                element={<ProtectedRoute component={LocationsPageNEW} />} 
+            />
+            <Route 
+                path="/locations-new/map" 
+                element={<ProtectedRoute component={MapViewPageNEW} />} 
+            />
+            <Route 
+                path="/locations-new/settings" 
+                element={<ProtectedRoute component={SettingsPageNEW} />} 
+            />
+            <Route 
+                path="/locations-new/analytics" 
+                element={<ProtectedRoute component={AnalyticsPageNEW} />} 
+            />
             {/* Giving Page */}
             <Route 
                 path="/giving" 
                 element={<ProtectedRoute component={GivingPage} />} 
+            />
+            {/* Task Manager Routes - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
+            <Route 
+                path="/task-manager" 
+                element={<ProtectedRoute component={TaskManagerPage} />} 
+            />
+            */}
+            
+            {/* New Template-Based Task Manager Routes */}
+            <Route 
+                path="/task-manager-new" 
+                element={<ProtectedRoute component={TaskManagerPageNEW} />} 
             />
             {/* Finance Routes */}
             <Route 
@@ -151,7 +214,7 @@ const AppRoutes: React.FC = () => {
                 path="/finance-new/reconciliation" 
                 element={<ProtectedRoute component={ReconciliationPageNEW} />} 
             />
-            {/* Scheduler Routes */}
+            {/* Scheduler Routes - COMMENTED OUT (REPLACED BY NEW TEMPLATE VERSIONS)
             <Route 
                 path="/scheduler" 
                 element={<ProtectedRoute component={SchedulerPage} />} 
@@ -176,6 +239,33 @@ const AppRoutes: React.FC = () => {
                 path="/scheduler/songs" 
                 element={<ProtectedRoute component={SchedulerPage} />} 
             />
+            */}
+            
+            {/* New Template-Based Scheduler Routes */}
+            <Route 
+                path="/scheduler-new" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
+            <Route 
+                path="/scheduler-new/series" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
+            <Route 
+                path="/scheduler-new/series/:seriesId" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
+            <Route 
+                path="/scheduler-new/events/:seriesId/:eventId" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
+            <Route 
+                path="/scheduler-new/teams" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
+            <Route 
+                path="/scheduler-new/songs" 
+                element={<ProtectedRoute component={SchedulerPageNEW} />} 
+            />
             <Route 
                 path="/finance/statements" 
                 element={<ProtectedRoute component={FinancePage} />} 
@@ -187,6 +277,11 @@ const AppRoutes: React.FC = () => {
             <Route 
                 path="/finance/budget" 
                 element={<ProtectedRoute component={FinancePage} />} 
+            />
+            {/* Test Routes */}
+            <Route 
+                path="/path-test" 
+                element={<ProtectedRoute component={PathTestPage} />} 
             />
             {/* Templates */}
             <Route 

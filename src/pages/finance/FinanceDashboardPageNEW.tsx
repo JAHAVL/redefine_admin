@@ -4,25 +4,23 @@ import { FinanceThemeProvider } from '../../widgets/financewidget/theme/FinanceT
 import { 
   FinanceWidgetContainer,
   FinanceContent
-} from '../../widgets/financewidget/FinanceWidgetStyled/index';
-import FinanceDashboard from '../../widgets/financewidget/modules/dashboard';
+} from '../../widgets/financewidget/FinanceWidgetStyled';
+import FinanceDashboard from '../../widgets/financewidget/modules/dashboard/FinanceDashboard';
 
 /**
  * Finance Dashboard Page component
- * Uses the master template and provides a container for the finance dashboard widget
+ * Uses the master template and provides the finance dashboard widget with its required providers
  */
 const FinanceDashboardPageNEW: React.FC = () => {
   return (
     <MainPageTemplate pageTitle="Finance">
-      <div className="widget-container" style={{ padding: '20px' }}>
-        <FinanceThemeProvider>
-          <FinanceWidgetContainer>
-            <FinanceContent>
-              <FinanceDashboard />
-            </FinanceContent>
-          </FinanceWidgetContainer>
-        </FinanceThemeProvider>
-      </div>
+      <FinanceThemeProvider>
+        <FinanceWidgetContainer>
+          <FinanceContent>
+            <FinanceDashboard />
+          </FinanceContent>
+        </FinanceWidgetContainer>
+      </FinanceThemeProvider>
     </MainPageTemplate>
   );
 };

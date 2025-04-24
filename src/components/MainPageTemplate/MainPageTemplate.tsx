@@ -33,19 +33,44 @@ const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   // Get the current section from the URL path
-  const getCurrentSection = (): string => {
-    const path = location.pathname.split('/')[1] || 'dashboard';
+  const getCurrentSection = (pathname: string): string => {
+    // Extract first part of the path
+    const path = pathname.split('/')[1];
     
-    // Map file-manager-new to file-manager section
-    if (path === 'file-manager-new') {
-      return 'file-manager';
-    }
-    // Map finance-new to finance section
+    // Map paths to sections
+    
+    // Finance section
     if (path === 'finance-new') {
       return 'finance';
     }
     
-    return path;
+    // File manager section
+    if (path === 'file-manager-new') {
+      return 'file-manager';
+    }
+    
+    // Locations section
+    if (path === 'locations-new') {
+      return 'locations';
+    }
+    
+    // Mail section
+    if (path === 'mail-new') {
+      return 'mail';
+    }
+    
+    // Task Manager section
+    if (path === 'task-manager-new') {
+      return 'task-manager';
+    }
+    
+    // Scheduler section
+    if (path === 'scheduler-new') {
+      return 'schedule';
+    }
+    
+    // If no mapping found, return the path as the section
+    return path || 'dashboard';
   };
 
   // Toggle functions
@@ -114,7 +139,7 @@ const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
     };
   }, []);
 
-  const currentSection = getCurrentSection();
+  const currentSection = getCurrentSection(location.pathname);
 
   return (
     <div className="main-page-template">

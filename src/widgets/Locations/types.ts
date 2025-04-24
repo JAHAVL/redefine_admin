@@ -20,9 +20,9 @@ export interface Location {
   id: string;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
-  max_distance_to_notify: number;
+  latitude?: number;
+  longitude?: number;
+  max_distance_to_notify?: number;
   created_at?: string;
   updated_at?: string;
   shared?: boolean;
@@ -30,6 +30,7 @@ export interface Location {
   shared_with?: string[];
   shared_groups?: ShareGroup[];
   created_by?: string;
+  status?: 'Active' | 'Inactive' | 'Maintenance';
 }
 
 /**
