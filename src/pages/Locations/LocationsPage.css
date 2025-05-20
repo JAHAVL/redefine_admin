@@ -1,0 +1,13 @@
+.locations-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .locations-container {
+    padding: 10px;
+  }
+}
