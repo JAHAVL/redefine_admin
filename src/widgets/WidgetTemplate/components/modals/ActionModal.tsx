@@ -1,6 +1,29 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { theme } from '../../theme';
+
+// Define theme locally since the import path is causing issues
+const theme = {
+    colors: {
+        text: {
+            white: '#FFFFFF'
+        }
+    },
+    spacing: {
+        sm: '8px',
+        md: '16px'
+    },
+    borderRadius: {
+        md: '8px'
+    },
+    typography: {
+        fontSizes: {
+            md: '14px'
+        },
+        fontWeights: {
+            medium: 500
+        }
+    }
+};
 
 /**
  * ActionModal - Small modal that appears near the triggering element
@@ -108,49 +131,63 @@ const ActionModal: React.FC<ActionModalProps> = ({
     const [isVisible, setIsVisible] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Calculate position based on trigger element
+    // Position the modal directly adjacent to the button
     useEffect(() => {
         if (isOpen && triggerRef.current) {
-            const triggerRect = triggerRef.current.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            
-            // Get the modal width and height (default values if not yet rendered)
-            const modalWidth = modalRef.current?.offsetWidth || 250;
-            const modalHeight = modalRef.current?.offsetHeight || 200;
-            
-            // Determine the best position - try to place it to the right of the trigger
-            let left = triggerRect.right + 10;
-            let top = triggerRect.top;
-            let transformOrigin = 'left center';
-            
-            // If the modal would extend beyond the right edge of the viewport, place it to the left
-            if (left + modalWidth > viewportWidth - 20) {
-                left = triggerRect.left - modalWidth - 10;
-                transformOrigin = 'right center';
+            const calculatePosition = () => {
+                if (!triggerRef.current || !modalRef.current) return;
                 
-                // If it also doesn't fit on the left, then center it horizontally
-                if (left < 20) {
-                    left = Math.max(20, triggerRect.left + (triggerRect.width / 2) - (modalWidth / 2));
-                    transformOrigin = 'center top';
+                const triggerRect = triggerRef.current.getBoundingClientRect();
+                const modalRect = modalRef.current.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Try to position the modal to the right of the button first
+                let left = triggerRect.right + 3; // Very close to the button
+                let top = triggerRect.top;
+                let transformOrigin = 'left center';
+                
+                // If there's not enough space on the right, try left side
+                if (left + modalRect.width > viewportWidth - 10) {
+                    left = triggerRect.left - modalRect.width - 3;
+                    transformOrigin = 'right center';
+                    
+                    // If there's also not enough space on the left, position below
+                    if (left < 10) {
+                        left = Math.max(10, triggerRect.left);
+                        top = triggerRect.bottom + 3;
+                        transformOrigin = 'top left';
+                        
+                        // If there's not enough space below, try above
+                        if (top + modalRect.height > viewportHeight - 10) {
+                            top = triggerRect.top - modalRect.height - 3;
+                            transformOrigin = 'bottom left';
+                        }
+                    }
                 }
-            }
+                
+                // Final boundary checks
+                if (top < 10) top = 10;
+                if (top + modalRect.height > viewportHeight - 10) {
+                    top = viewportHeight - modalRect.height - 10;
+                }
+                
+                setModalPosition({
+                    top,
+                    left,
+                    transformOrigin
+                });
+            };
             
-            // If the modal extends beyond the bottom of the viewport, adjust top position
-            if (top + modalHeight > viewportHeight - 20) {
-                top = viewportHeight - modalHeight - 20;
-                transformOrigin = `${transformOrigin.split(' ')[0]} bottom`;
-            }
+            // Calculate position immediately and then again after a short delay
+            // This double calculation helps ensure accurate positioning with dynamically sized content
+            calculatePosition();
+            const timer = setTimeout(() => {
+                calculatePosition();
+                setIsVisible(true);
+            }, 50);
             
-            // Update the position
-            setModalPosition({
-                top,
-                left,
-                transformOrigin
-            });
-            
-            // Small delay before making it visible for animation
-            setTimeout(() => setIsVisible(true), 50);
+            return () => clearTimeout(timer);
         } else {
             setIsVisible(false);
         }
@@ -158,6 +195,8 @@ const ActionModal: React.FC<ActionModalProps> = ({
     
     // Close on click outside
     useEffect(() => {
+        if (!isOpen) return;
+        
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 modalRef.current &&
@@ -169,13 +208,8 @@ const ActionModal: React.FC<ActionModalProps> = ({
             }
         };
         
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-        
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen, onClose, triggerRef]);
     
     if (!isOpen) return null;
