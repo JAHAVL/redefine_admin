@@ -235,12 +235,12 @@ export const PositionStatus = styled.span`
 `;
 
 export const ActionButton = styled.button`
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    position: fixed;
+    right: 200px;
+    bottom: 66px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
     background-color: ${theme.colors.primary};
     color: white;
     display: flex;
@@ -299,17 +299,15 @@ export const ScheduleEmptyState = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
     padding: ${theme.spacing.lg};
-    background: ${theme.colors.background};
+    background: rgba(0, 0, 0, 0.05);
     border-radius: ${theme.borderRadius.md};
-    margin-bottom: ${theme.spacing.lg};
-    color: ${theme.colors.text.secondary};
-    border: 1px dashed ${theme.colors.border};
+    text-align: center;
+    margin: ${theme.spacing.md} 0;
     
     p {
-        margin: 0;
+        color: ${theme.colors.text.secondary};
+        margin-top: ${theme.spacing.xs};
         font-size: ${theme.typography.fontSizes.sm};
-        max-width: 400px;
     }
 `;
