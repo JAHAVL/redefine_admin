@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../theme/index';
@@ -8,14 +8,23 @@ import AddElementModal from '../components/modals/AddElementModal';
 import AddHeaderModal from '../components/modals/AddHeaderModal';
 import AddItemSelectionModal from '../components/modals/AddItemSelectionModal';
 import AddButton from '../components/AddButton';
-import ElementList from '../components/EventDetails/ElementList';
-import HeaderList from '../components/EventDetails/HeaderList';
 import { ExtendedSeriesEvent, SongExpandStateData } from '../types/songInterfaces';
 import { mockEvents, mockSeries, mockSpecialSeries } from '../utils/mockData';
 import EventSideTabs, { SidebarTab as EventSidebarTab } from '../components/EventDetails/EventSideTabs';
 import EventHeader from '../components/EventDetails/EventHeader';
 import BackButton from '../components/EventDetails/BackButton';
+import DraggableList from '../components/EventDetails/DraggableListNew';
 import SongList from '../components/EventDetails/SongList';
+import HeaderList from '../components/EventDetails/HeaderList';
+import ElementList from '../components/EventDetails/ElementList';
+
+// Unified item type for drag and drop operations
+interface EventItem {
+    id: number;
+    type: 'song' | 'element' | 'header';
+    position: number;
+    data: any; // Specific data for each type
+};
 
 // Styled components
 const DetailContainer = styled.div`
@@ -128,6 +137,9 @@ const EventDetailView: React.FC = () => {
     // State for tracking which songs are expanded and their active tabs
     const [songExpandState, setSongExpandState] = useState<SongExpandState>({});
     
+    // Separate state for tracking element expansion states
+    const [elementExpandState, setElementExpandState] = useState<SongExpandState>({});
+    
     // State for header colors
     const [headers, setHeaders] = useState<Array<{id: number; title: string; color?: string}>>([    
         { id: 1, title: 'Pre-Service', color: theme.colors.primary },
@@ -147,12 +159,43 @@ const EventDetailView: React.FC = () => {
     
     // Handler for header color changes
     const handleHeaderColorChange = (id: number, color: string): void => {
-        setHeaders(prevHeaders => 
-            prevHeaders.map(header => 
-                header.id === id ? { ...header, color } : header
+        setEventItems(prevItems => 
+            prevItems.map(item => 
+                (item.type === 'header' && item.data.id === id) 
+                    ? { ...item, data: { ...item.data, color } } 
+                    : item
             )
         );
     };
+    
+    // Handlers for adding new items to the event
+    const handleAddSong = (): void => {
+        console.log('Opening song selection modal');
+        setIsSelectionModalOpen(true);
+    };
+    
+    const handleAddElement = (): void => {
+        console.log('Opening element creation modal');
+        setIsElementModalOpen(true);
+    };
+    
+    const handleAddHeader = (): void => {
+        console.log('Opening header creation modal');
+        setIsHeaderModalOpen(true);
+    };
+    
+    // Handler for updating elements
+    const handleElementUpdate = (id: number, updatedElement: any): void => {
+        setEventItems(prevItems => 
+            prevItems.map(item => 
+                (item.type === 'element' && item.data.id === id) 
+                    ? { ...item, data: { ...updatedElement } } 
+                    : item
+            )
+        );
+    };
+    
+
     
     // Mock songs data for demo
     const mockSongList = [
@@ -162,9 +205,21 @@ const EventDetailView: React.FC = () => {
         { id: 4, title: 'Good Good Father', artist: 'Chris Tomlin', key: 'A', bpm: 70 }
     ];
     
-    // Initialize the songExpandState with mock data - only run once on component mount
+    // Mock elements for the event
+    const mockElementList = [
+        { id: 1, title: 'Welcome', duration: 5, presenter: 'Pastor Mike' },
+        { id: 2, title: 'Announcements', duration: 3, presenter: 'Rachel' },
+        { id: 3, title: 'Scripture Reading', duration: 2, presenter: 'David' },
+        { id: 4, title: 'Message', duration: 25, presenter: 'Pastor Mike' }
+    ];
+    
+    // Unified event items state for drag and drop functionality
+    const [eventItems, setEventItems] = useState<EventItem[]>([]);
+
+    // Initialize the songExpandState and event items with mock data
     useEffect(() => {
         if (mockSongList.length > 0) {
+            // Initialize song expand state
             const initialState: SongExpandState = {};
             mockSongList.forEach((song) => {
                 initialState[song.id] = {
@@ -194,6 +249,89 @@ const EventDetailView: React.FC = () => {
                 };
             });
             setSongExpandState(initialState);
+            
+            // Create initial event items list with mixed types (songs, elements, headers)
+            const initialEventItems: EventItem[] = [
+                // Header: Pre-Service
+                {
+                    id: 1,
+                    type: 'header',
+                    position: 0,
+                    data: { id: 1, title: 'Pre-Service', color: theme.colors.primary }
+                },
+                // Element: Welcome
+                {
+                    id: 2,
+                    type: 'element',
+                    position: 1,
+                    data: mockElementList[0]
+                },
+                // Song: Amazing Grace
+                {
+                    id: 3,
+                    type: 'song',
+                    position: 2,
+                    data: mockSongList[0]
+                },
+                // Header: Worship Set
+                {
+                    id: 4,
+                    type: 'header',
+                    position: 3,
+                    data: { id: 2, title: 'Worship Set', color: theme.colors.info }
+                },
+                // Song: How Great Is Our God
+                {
+                    id: 5,
+                    type: 'song',
+                    position: 4,
+                    data: mockSongList[1]
+                },
+                // Song: Cornerstone
+                {
+                    id: 6,
+                    type: 'song',
+                    position: 5,
+                    data: mockSongList[2]
+                },
+                // Header: Message
+                {
+                    id: 7,
+                    type: 'header',
+                    position: 6,
+                    data: { id: 3, title: 'Message', color: theme.colors.accent }
+                },
+                // Element: Scripture Reading
+                {
+                    id: 8,
+                    type: 'element',
+                    position: 7,
+                    data: mockElementList[2]
+                },
+                // Element: Message
+                {
+                    id: 9,
+                    type: 'element',
+                    position: 8,
+                    data: mockElementList[3]
+                },
+                // Header: Response
+                {
+                    id: 10,
+                    type: 'header',
+                    position: 9,
+                    data: { id: 4, title: 'Response', color: theme.colors.success }
+                },
+                // Song: Good Good Father
+                {
+                    id: 11,
+                    type: 'song',
+                    position: 10,
+                    data: mockSongList[3]
+                },
+            ];
+            
+            setEventItems(initialEventItems);
         }
     }, []); // Empty dependency array to ensure this only runs once on mount
 
@@ -224,6 +362,38 @@ const EventDetailView: React.FC = () => {
         navigate(`/scheduler-new/series/${seriesId}`);
     };
 
+    const handleReorderItems = useCallback((dragIndex: number, hoverIndex: number): void => {
+        // Use a more direct approach to ensure state updates correctly
+        setEventItems((prevItems) => {
+            // Create a copy of the previous items
+            const newItems = [...prevItems];
+            
+            // Get the dragged item
+            const draggedItem = newItems[dragIndex];
+            
+            if (!draggedItem) {
+                console.error(`Item at index ${dragIndex} not found`);
+                return prevItems;
+            }
+            
+            // Remove the dragged item
+            newItems.splice(dragIndex, 1);
+            
+            // Insert it at the new position
+            newItems.splice(hoverIndex, 0, draggedItem);
+            
+            // Debug output
+            console.log(`Moved item from index ${dragIndex} to ${hoverIndex}:`, 
+                        draggedItem.type, draggedItem.id);
+            
+            // Update positions and return new array
+            return newItems.map((item, index) => ({
+                ...item,
+                position: index
+            }));
+        });
+    }, []);
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -244,39 +414,51 @@ const EventDetailView: React.FC = () => {
             <ContentLayout>
                 <MainContent>
                     <Section>
-                        {/* Section header removed */}
-                        <SongList 
-                            songs={mockSongList}
-                            songExpandState={songExpandState}
-                            setSongExpandState={setSongExpandState}
-                            onAddSong={() => setIsSongModalOpen(false)} /* Placeholder but not displayed */
-                        />
-                    </Section>
-                    
-                    <Section style={{ marginTop: theme.spacing.lg }}>
-                        {/* Section header removed */}
-                        <ElementList 
-                            elements={[
-                                { id: 1, title: 'Welcome and Announcements', description: 'Brief introduction and weekly announcements', time: '9:00 AM', duration: '5min' },
-                                { id: 2, title: 'Opening Prayer', description: 'Led by Pastor John', time: '9:05 AM', duration: '3min' },
-                                { id: 3, title: 'Video Intro', description: 'New series introduction video', time: '9:08 AM', duration: '2min' }
-                            ]} 
-                            elementExpandState={songExpandState}
-                            setElementExpandState={setSongExpandState}
-                            onAddElement={() => setIsElementModalOpen(false)} /* Placeholder but not displayed */
-                            onElementUpdate={(id, updatedElement) => {
-                                console.log('Element updated:', id, updatedElement);
-                                // Would typically update state or make API call here
-                            }}
-                        />
-                    </Section>
-                    
-                    <Section style={{ marginTop: theme.spacing.lg }}>
-                        {/* Section header removed */}
-                        <HeaderList 
-                            headers={headers}
-                            onAddHeader={() => setIsHeaderModalOpen(false)} /* Placeholder but not displayed */
-                            onHeaderColorChange={handleHeaderColorChange}
+                        <SectionHeader>
+                            <SectionTitle>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 8c-2.8 0-5 1.8-5 4s2.2 4 5 4 5-1.8 5-4-2.2-4-5-4Z"></path>
+                                    <path d="M8 16v-4"></path>
+                                    <path d="M16 16v-4"></path>
+                                    <path d="M12 12v8"></path>
+                                    <path d="M12 4v4"></path>
+                                </svg>
+                                Event Program
+                            </SectionTitle>
+                        </SectionHeader>
+                        
+                        <DraggableList
+                            items={eventItems}
+                            keyExtractor={(item) => `${item.type}-${item.id}`}
+                            onReorder={handleReorderItems}
+                            renderItem={(item, index) => (
+                                <>
+                                    {item.type === 'song' && (
+                                        <SongList 
+                                            songs={[item.data]} 
+                                            songExpandState={songExpandState} 
+                                            setSongExpandState={setSongExpandState}
+                                            onAddSong={handleAddSong}
+                                        />
+                                    )}
+                                    {item.type === 'element' && (
+                                        <ElementList 
+                                            elements={[item.data]} 
+                                            elementExpandState={elementExpandState}
+                                            setElementExpandState={setElementExpandState}
+                                            onAddElement={handleAddElement}
+                                            onElementUpdate={handleElementUpdate}
+                                        />
+                                    )}
+                                    {item.type === 'header' && (
+                                        <HeaderList 
+                                            headers={[item.data]} 
+                                            onHeaderColorChange={handleHeaderColorChange}
+                                            onAddHeader={handleAddHeader}
+                                        />
+                                    )}
+                                </>
+                            )}
                         />
                     </Section>
                     
