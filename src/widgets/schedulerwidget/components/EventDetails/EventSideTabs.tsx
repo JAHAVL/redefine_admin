@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../theme/index';
 import { SongExpandStateData } from '../../types/songInterfaces';
 import SongList from './SongList';
 import ElementList from './ElementList';
 import HeaderList from './HeaderList';
+import SongLibrary from './SongLibrary';
 import { ActionModal } from '../../../WidgetTemplate/components/modals';
 
 // Types
@@ -52,10 +53,21 @@ interface ModalOption {
     action: () => void;
 }
 
+// Song type definition matching the SongLibrary component
+interface Song {
+    id: number;
+    title: string;
+    artist: string;
+    key?: string;
+    bpm?: number;
+}
+
 // Main component props
 interface EventSideTabsProps {
     activeTab: SidebarTab;
     setActiveTab: (tab: SidebarTab) => void;
+    onSongDrop?: (song: Song, dropIndex?: number) => void;
+    onExternalSongSet?: (song: Song) => void;  // New prop for setting external song reference
 }
 
 // Mock data for tabs 
@@ -69,20 +81,31 @@ const mockSongList = [
 
 // Note: Elements and Headers components have been moved to the main content area in EventDetailView
 
+// Time type interface
+interface TimeItem {
+    id: number;
+    type: string;
+    time: string;
+    day?: string;
+    serviceType?: 'live' | 'pre-recorded' | 'sim-live';
+}
+
+// Mock time data
 const mockTimes = {
     schedule: [
         { id: 1, type: 'Sound Check', time: '8:00 AM' },
         { id: 2, type: 'Rehearsal', time: '8:30 AM' },
         { id: 3, type: 'Pre-Service Prayer', time: '9:30 AM' }
-    ],
+    ] as TimeItem[],
     eventDay: [
-        { id: 4, type: 'Service Start', time: '10:00 AM' },
-        { id: 5, type: 'Service End', time: '11:30 AM' }
-    ],
+        { id: 4, type: 'Service Start', time: '10:00 AM', serviceType: 'live' },
+        { id: 5, type: 'Service End', time: '11:30 AM' },
+        { id: 8, type: 'Online Service', time: '12:30 PM', serviceType: 'sim-live' }
+    ] as TimeItem[],
     other: [
         { id: 6, type: 'Team Meeting', day: 'Thursday', time: '7:00 PM' },
         { id: 7, type: 'Setup', day: 'Saturday', time: '6:00 PM' }
-    ]
+    ] as TimeItem[]
 };
 
 // Mock team data for the team schedule
@@ -454,50 +477,622 @@ const StatusDot = styled.div<{ status: string }>`
     }};
 `;
 
+// Styled components for the Time tab
+// Create a forwarded ref version of the TimeItem component
+const TimeItemBase = styled.div<{ color?: string }>`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: ${theme.spacing.sm};
+    padding: ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.sm};
+    background: ${theme.colors.card};
+    border-left: 3px solid ${(props: { color?: string }) => props.color || theme.colors.primary};
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+`;
+
+// Forward ref to allow TimeItem to accept refs
+const TimeItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { color?: string }>((props, ref) => {
+    const { color, ...restProps } = props;
+    return <TimeItemBase ref={ref} color={color} {...restProps} />;
+});
+
+const TimeTypeTag = styled.span<{ serviceType?: string }>`
+    font-size: ${theme.typography.fontSizes.sm};
+    font-weight: ${theme.typography.fontWeights.medium};
+    color: ${theme.colors.text.primary};
+    display: flex;
+    align-items: center;
+`;
+
+const TimeValue = styled.span`
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+    display: flex;
+    align-items: center;
+`;
+
+// Define common form components
+const Label = styled.label`
+    display: block;
+    margin-bottom: ${theme.spacing.xs};
+    font-size: ${theme.typography.fontSizes.sm};
+    font-weight: ${theme.typography.fontWeights.medium};
+    color: ${theme.colors.text.primary};
+`;
+
+const Input = styled.input`
+    width: 100%;
+    padding: ${theme.spacing.sm};
+    border: 1px solid ${theme.colors.border};
+    border-radius: ${theme.borderRadius.sm};
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.primary};
+    background: ${theme.colors.background};
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+        outline: none;
+        border-color: ${theme.colors.primary};
+    }
+    
+    &::placeholder {
+        color: ${theme.colors.text.secondary};
+    }
+`;
+
+// Define the TimeItem interface
+interface TimeItem {
+    id: number;
+    type: string;
+    time: string;
+    day?: string;
+    serviceType?: 'live' | 'pre-recorded' | 'sim-live';
+}
+
+const ServiceTypeBadge = styled.span<{ type?: 'live' | 'pre-recorded' | 'sim-live' }>`
+    font-size: ${theme.typography.fontSizes.xs};
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-left: ${theme.spacing.xs};
+    background: ${(props: { type?: 'live' | 'pre-recorded' | 'sim-live' }) => {
+        switch (props.type) {
+            case 'live': return theme.colors.success + '20';
+            case 'pre-recorded': return theme.colors.warning + '20';
+            case 'sim-live': return theme.colors.info + '20';
+            default: return theme.colors.background;
+        }
+    }};
+    color: ${(props: { type?: 'live' | 'pre-recorded' | 'sim-live' }) => {
+        switch (props.type) {
+            case 'live': return theme.colors.success;
+            case 'pre-recorded': return theme.colors.warning;
+            case 'sim-live': return theme.colors.info;
+            default: return theme.colors.text.secondary;
+        }
+    }};
+`;
+
+const AddTimeButton = styled.button`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: ${theme.spacing.sm};
+    margin-top: ${theme.spacing.sm};
+    background: ${theme.colors.background};
+    border: 1px dashed ${theme.colors.border};
+    border-radius: ${theme.borderRadius.sm};
+    color: ${theme.colors.primary};
+    font-size: ${theme.typography.fontSizes.sm};
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: ${theme.colors.highlight};
+        border-color: ${theme.colors.primary};
+    }
+    
+    svg {
+        margin-right: ${theme.spacing.xs};
+    }
+`;
+
+const NoTimesMessage = styled.div`
+    padding: ${theme.spacing.md};
+    text-align: center;
+    color: ${theme.colors.text.secondary};
+    font-style: italic;
+    background: ${theme.colors.background};
+    border-radius: ${theme.borderRadius.sm};
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const TimeSection = styled.div`
+    margin-bottom: ${theme.spacing.lg};
+`;
+
+// Color picker styled components
+const ColorPickerGroup = styled.div`
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const ColorPickerWrapper = styled.div`
+    position: relative;
+`;
+
+const ColorPickerBox = styled.div<{ color: string }>`
+    width: 100%;
+    height: 100px;
+    border-radius: ${theme.borderRadius.sm};
+    /* Create a gradient from white to color to black for proper HSL color picking */
+    background: ${(props: { color: string }): string => `
+        linear-gradient(to top, #000, transparent),
+        linear-gradient(to right, #fff, ${props.color})
+    `};
+    position: relative;
+    cursor: crosshair;
+`;
+
+const ColorPickerSelector = styled.div<{ top: number; left: number }>`
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    top: ${(props: { top: number }): string => `${props.top}px`};
+    left: ${(props: { left: number }): string => `${props.left}px`};
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+`;
+
+const HueSlider = styled.div`
+    width: 100%;
+    height: 12px;
+    margin-top: ${theme.spacing.sm};
+    background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    border-radius: ${theme.borderRadius.sm};
+    position: relative;
+    cursor: pointer;
+`;
+
+const HueSliderHandle = styled.div<{ left: number }>`
+    position: absolute;
+    width: 12px;
+    height: 20px;
+    background: white;
+    border-radius: 4px;
+    top: 50%;
+    left: ${(props: { left: number }): string => `${props.left}%`};
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+`;
+
+const ColorPreview = styled.div<{ color: string }>`
+    width: 100%;
+    height: 30px;
+    margin-top: ${theme.spacing.sm};
+    background-color: ${(props: { color: string }): string => props.color};
+    border-radius: ${theme.borderRadius.sm};
+    border: 1px solid rgba(0, 0, 0, 0.1);
+`;
+
+// HSL color type for the color picker
+interface HSLColor {
+    h: number; // 0-360
+    s: number; // 0-100
+    l: number; // 0-100
+}
+
+// Color conversion utility functions
+const hexToHsl = (hex: string): HSLColor => {
+    // Default to primary color if hex is invalid
+    if (!hex || !/^#[0-9A-F]{6}$/i.test(hex)) {
+        hex = theme.colors.primary;
+    }
+    
+    // Convert hex to RGB
+    const r = parseInt(hex.substring(1, 3), 16) / 255;
+    const g = parseInt(hex.substring(3, 5), 16) / 255;
+    const b = parseInt(hex.substring(5, 7), 16) / 255;
+    
+    // Find min and max RGB values
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    
+    // Calculate lightness
+    let l = (max + min) / 2;
+    
+    // Calculate saturation
+    let s = 0;
+    if (max !== min) {
+        s = l > 0.5 ? (max - min) / (2 - max - min) : (max - min) / (max + min);
+    }
+    
+    // Calculate hue
+    let h = 0;
+    if (max !== min) {
+        if (max === r) {
+            h = (g - b) / (max - min) + (g < b ? 6 : 0);
+        } else if (max === g) {
+            h = (b - r) / (max - min) + 2;
+        } else {
+            h = (r - g) / (max - min) + 4;
+        }
+        h *= 60;
+    }
+    
+    return {
+        h: Math.round(h),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+    };
+};
+
+const hslToHex = (h: number, s: number, l: number): string => {
+    // Convert to 0-1 range
+    h = h % 360;
+    s = Math.max(0, Math.min(100, s)) / 100;
+    l = Math.max(0, Math.min(100, l)) / 100;
+    
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    
+    let r, g, b;
+    
+    if (h >= 0 && h < 60) {
+        [r, g, b] = [c, x, 0];
+    } else if (h >= 60 && h < 120) {
+        [r, g, b] = [x, c, 0];
+    } else if (h >= 120 && h < 180) {
+        [r, g, b] = [0, c, x];
+    } else if (h >= 180 && h < 240) {
+        [r, g, b] = [0, x, c];
+    } else if (h >= 240 && h < 300) {
+        [r, g, b] = [x, 0, c];
+    } else {
+        [r, g, b] = [c, 0, x];
+    }
+    
+    // Convert to hex
+    const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+    const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+    const bHex = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+    
+    return `#${rHex}${gHex}${bHex}`;
+};
+
+// Time management form for the modal
+interface TimeFormData {
+    id?: number;
+    type: string;
+    time: string;
+    day?: string;
+    serviceType?: 'live' | 'pre-recorded' | 'sim-live';
+    color?: string; // Hex color for the left border
+}
+
 // Time tab component
 const TimeTab: React.FC = () => {
+    // Modal state
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedSection, setSelectedSection] = useState<'eventDay' | 'schedule' | 'other'>('eventDay');
+    const [currentTimeItem, setCurrentTimeItem] = useState<TimeFormData | null>(null);
+    
+    // Color picker state
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const [hsla, setHsla] = useState<HSLColor>({ h: 210, s: 70, l: 50 }); // Default blue
+    
+    // Create refs for color picker
+    const colorPickerRef = useRef<HTMLDivElement>(null);
+    const hueSliderRef = useRef<HTMLDivElement>(null);
+    
+    // Create refs for buttons
+    const eventDayAddButtonRef = useRef<HTMLButtonElement>(null);
+    const scheduleAddButtonRef = useRef<HTMLButtonElement>(null);
+    const otherAddButtonRef = useRef<HTMLButtonElement>(null);
+    
+    // Create refs for items that can be clicked to edit (we'll create these dynamically)
+    const itemRefs = useRef<{ [id: number]: React.RefObject<HTMLDivElement> }>({});
+    
+    // Current active element reference for modal positioning
+    const [activeElementRef, setActiveElementRef] = useState<React.RefObject<HTMLElement> | null>(null);
+    
+    // Initialize or get a ref for a time item
+    const getItemRef = (id: number) => {
+        if (!itemRefs.current[id]) {
+            itemRefs.current[id] = React.createRef<HTMLDivElement>();
+        }
+        return itemRefs.current[id];
+    };
+    
+    // Open add time modal
+    const handleAddTime = (section: 'eventDay' | 'schedule' | 'other') => {
+        setSelectedSection(section);
+        setCurrentTimeItem({
+            type: '',
+            time: '',
+            day: section === 'other' ? 'Monday' : undefined,
+            serviceType: section === 'eventDay' ? 'live' : undefined
+        });
+        
+        // Set the active button reference based on the section
+        let ref: React.RefObject<HTMLElement> | null = null;
+        switch (section) {
+            case 'eventDay':
+                ref = eventDayAddButtonRef as unknown as React.RefObject<HTMLElement>;
+                break;
+            case 'schedule':
+                ref = scheduleAddButtonRef as unknown as React.RefObject<HTMLElement>;
+                break;
+            case 'other':
+                ref = otherAddButtonRef as unknown as React.RefObject<HTMLElement>;
+                break;
+        }
+        
+        setActiveElementRef(ref);
+        setIsAddModalOpen(true);
+    };
+    
+    // Open edit time modal
+    const handleEditTime = (item: TimeItem, section: 'eventDay' | 'schedule' | 'other') => {
+        setSelectedSection(section);
+        setCurrentTimeItem({
+            id: item.id,
+            type: item.type,
+            time: item.time,
+            day: item.day,
+            serviceType: item.serviceType
+        });
+        
+        // Use the ref for this item for positioning
+        setActiveElementRef(getItemRef(item.id) as unknown as React.RefObject<HTMLElement>);
+        setIsEditModalOpen(true);
+    };
+    
+    // Save time (mock implementation)
+    const handleSaveTime = () => {
+        // Here you would typically make an API call to save the time
+        console.log('Saving time:', currentTimeItem);
+        
+        // Close modals
+        setIsAddModalOpen(false);
+        setIsEditModalOpen(false);
+    };
+    
+    // Render service type badge if applicable
+    const renderServiceTypeBadge = (serviceType?: 'live' | 'pre-recorded' | 'sim-live') => {
+        if (!serviceType) return null;
+        
+        return (
+            <ServiceTypeBadge type={serviceType}>
+                {serviceType === 'live' ? 'Live' : 
+                 serviceType === 'pre-recorded' ? 'Pre-recorded' : 'Sim-Live'}
+            </ServiceTypeBadge>
+        );
+    };
+    
+    // Render a section of time items
+    const renderTimeSection = (
+        title: string, 
+        items: TimeItem[], 
+        section: 'eventDay' | 'schedule' | 'other'
+    ) => (
+        <TimeSection>
+            <SectionTitle>{title}</SectionTitle>
+            {items.length > 0 ? (
+                <>
+                    {items.map(item => (
+                        <TimeItem 
+                            key={item.id} 
+                            ref={getItemRef(item.id)}
+                            onClick={() => handleEditTime(item, section)}
+                        >
+                            <TimeTypeTag>
+                                {item.type}
+                                {renderServiceTypeBadge(item.serviceType)}
+                            </TimeTypeTag>
+                            <TimeValue>
+                                {item.day ? `${item.day}, ` : ''}
+                                {item.time}
+                            </TimeValue>
+                        </TimeItem>
+                    ))}
+                </>
+            ) : (
+                <NoTimesMessage>No times scheduled</NoTimesMessage>
+            )}
+            <AddTimeButton 
+                ref={section === 'eventDay' ? eventDayAddButtonRef : 
+                     section === 'schedule' ? scheduleAddButtonRef : 
+                     otherAddButtonRef}
+                onClick={() => handleAddTime(section)}
+            >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Time
+            </AddTimeButton>
+        </TimeSection>
+    );
+    
+    // Render the time form for the modal
+    const renderTimeForm = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: theme.spacing.md }}>
+            <div>
+                <Label htmlFor="time-type">Event Type</Label>
+                <Input 
+                    id="time-type"
+                    type="text"
+                    placeholder="e.g., Service Start, Sound Check"
+                    value={currentTimeItem?.type || ''}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setCurrentTimeItem(prev => ({ ...prev!, type: e.target.value }))}
+                />
+            </div>
+            
+            <div>
+                <Label htmlFor="time-value">Time</Label>
+                <Input 
+                    id="time-value"
+                    type="text"
+                    placeholder="e.g., 10:00 AM"
+                    value={currentTimeItem?.time || ''}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setCurrentTimeItem(prev => ({ ...prev!, time: e.target.value }))}
+                />
+            </div>
+            
+            {selectedSection === 'other' && (
+                <div>
+                    <Label htmlFor="time-day">Day</Label>
+                    <Input 
+                        id="time-day"
+                        type="text"
+                        placeholder="e.g., Monday"
+                        value={currentTimeItem?.day || ''}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setCurrentTimeItem(prev => ({ ...prev!, day: e.target.value }))}
+                    />
+                </div>
+            )}
+            
+            {selectedSection === 'eventDay' && (
+                <div>
+                    <Label htmlFor="service-type">Service Type</Label>
+                    <select
+                        id="service-type"
+                        value={currentTimeItem?.serviceType || 'live'}
+                        onChange={(e) => setCurrentTimeItem(prev => ({ 
+                            ...prev!, 
+                            serviceType: e.target.value as 'live' | 'pre-recorded' | 'sim-live' 
+                        }))}
+                        style={{
+                            width: '100%',
+                            padding: theme.spacing.sm,
+                            borderRadius: theme.borderRadius.sm,
+                            border: `1px solid ${theme.colors.border}`,
+                            background: theme.colors.background,
+                            color: theme.colors.text.primary
+                        }}
+                    >
+                        <option value="live">Live</option>
+                        <option value="pre-recorded">Pre-recorded</option>
+                        <option value="sim-live">Sim-Live</option>
+                    </select>
+                </div>
+            )}
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+                <button 
+                    onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
+                    style={{
+                        padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+                        background: 'transparent',
+                        border: `1px solid ${theme.colors.border}`,
+                        borderRadius: theme.borderRadius.sm,
+                        color: theme.colors.text.primary,
+                        cursor: 'pointer'
+                    }}
+                >
+                    Cancel
+                </button>
+                <button 
+                    onClick={handleSaveTime}
+                    style={{
+                        padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+                        background: theme.colors.primary,
+                        border: `1px solid ${theme.colors.primary}`,
+                        borderRadius: theme.borderRadius.sm,
+                        color: theme.colors.text.white,
+                        cursor: 'pointer'
+                    }}
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    );
+
     return (
         <div>
-            <SectionTitle>Event Day</SectionTitle>
-            <div style={{ marginBottom: theme.spacing.lg }}>
-                {mockTimes.eventDay.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: theme.spacing.sm, paddingBottom: theme.spacing.sm, borderBottom: `1px solid ${theme.colors.border}` }}>
-                        <span>{item.type}</span>
-                        <span>{item.time}</span>
-                    </div>
-                ))}
-            </div>
+            {renderTimeSection('Event Day', mockTimes.eventDay, 'eventDay')}
+            {renderTimeSection('Pre-Event Schedule', mockTimes.schedule, 'schedule')}
+            {renderTimeSection('Other Important Times', mockTimes.other, 'other')}
             
-            <SectionTitle>Pre Event Schedule</SectionTitle>
-            <div style={{ marginBottom: theme.spacing.lg }}>
-                {mockTimes.schedule.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: theme.spacing.sm, paddingBottom: theme.spacing.sm, borderBottom: `1px solid ${theme.colors.border}` }}>
-                        <span>{item.type}</span>
-                        <span>{item.time}</span>
-                    </div>
-                ))}
-            </div>
+            {/* Add Time Modal */}
+            {activeElementRef && (
+                <ActionModal
+                    isOpen={isAddModalOpen}
+                    onClose={() => setIsAddModalOpen(false)}
+                    title="Add New Time"
+                    triggerRef={activeElementRef}
+                >
+                    {renderTimeForm()}
+                </ActionModal>
+            )}
             
-            <SectionTitle>Other Important Times</SectionTitle>
-            <div>
-                {mockTimes.other.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: theme.spacing.sm, paddingBottom: theme.spacing.sm, borderBottom: `1px solid ${theme.colors.border}` }}>
-                        <span>{item.type}</span>
-                        <span>{item.day}, {item.time}</span>
-                    </div>
-                ))}
-            </div>
+            {/* Edit Time Modal */}
+            {activeElementRef && (
+                <ActionModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    title="Edit Time"
+                    triggerRef={activeElementRef}
+                >
+                    {renderTimeForm()}
+                </ActionModal>
+            )}
         </div>
     );
 };
 
-// Song tab component
-const SongTab: React.FC = () => {
-    // Mock song list display that will be replaced by the main content area
+// Song tab component - Displays a library of songs that can be dragged to the event program
+interface SongTabProps {
+    onSongDrop?: (song: Song, dropIndex?: number) => void;
+    onExternalSongSet?: (song: Song) => void;  // New prop for setting external song reference
+}
+
+const SongTab: React.FC<SongTabProps> = ({ onSongDrop, onExternalSongSet }) => {
+    // Handlers for drag and drop events
+    const handleDragStart = (song: Song): void => {
+        console.log('Started dragging song:', song.title);
+        
+        // Set the song as the current external song being dragged
+        if (onExternalSongSet) {
+            onExternalSongSet(song);
+        }
+    };
+    
+    const handleDragEnd = (song: Song, evt?: any): void => {
+        console.log('Finished dragging song:', song.title);
+        
+        // We don't need to call onSongDrop here anymore
+        // The handleReorderItems function in EventDetailView will handle it
+        // This prevents adding the song twice
+        
+        // For debugging, we'll just log the drag end event
+        if (evt && evt.to && evt.to !== evt.from) {
+            console.log('Song was dropped in the event list');
+        } else {
+            console.log('Song was not dropped in a valid target');
+        }
+    };
+    
     return (
-        <div style={{ padding: theme.spacing.md, color: theme.colors.text.secondary, textAlign: 'center' }}>
-            <p>Song list is now displayed in the main content area.</p>
-            <p>Please refer to the main panel for Songs, Elements, and Headers.</p>
+        <div style={{ height: 'calc(100vh - 200px)' }}>
+            <SongLibrary 
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd} 
+            />
         </div>
     );
 };
@@ -726,8 +1321,8 @@ const PeopleTab: React.FC = () => {
     );
 };
 
-// Main component
-const EventSideTabs: React.FC<EventSideTabsProps> = ({ activeTab, setActiveTab }) => {
+// Main component - Sidebar tabs for event detail view
+const EventSideTabs: React.FC<EventSideTabsProps> = ({ activeTab, setActiveTab, onSongDrop, onExternalSongSet }) => {
     return (
         <TabContainer>
             <TabsContainer>
@@ -754,7 +1349,7 @@ const EventSideTabs: React.FC<EventSideTabsProps> = ({ activeTab, setActiveTab }
                 
                 <TabContent>
                     {activeTab === SidebarTab.TIME && <TimeTab />}
-                    {activeTab === SidebarTab.SONG && <SongTab />}
+                    {activeTab === SidebarTab.SONG && <SongTab onSongDrop={onSongDrop} onExternalSongSet={onExternalSongSet} />}
                     {activeTab === SidebarTab.PEOPLE && <PeopleTab />}
                 </TabContent>
             </TabsContainer>
