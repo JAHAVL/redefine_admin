@@ -1,6 +1,9 @@
-import apiService from '../../services/api';
-import navigationService from '../../services/navigationService';
-import operationService from '../../services/operationService';
+import { getComponentPath } from '../../utils/pathconfig';
+
+// Import services using the centralized path management
+const apiService = require(getComponentPath('../../', 'API_SERVICE')).default;
+const navigationService = require(getComponentPath('../../', 'NAVIGATION_SERVICE')).default;
+const operationService = require(getComponentPath('../../', 'OPERATION_SERVICE')).default;
 import { MailAccount, Signature } from './types';
 
 /**

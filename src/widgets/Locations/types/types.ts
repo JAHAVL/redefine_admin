@@ -18,7 +18,7 @@ export interface Location {
   updatedAt: string;
 }
 
-export type LocationViewMode = 'grid' | 'table';
+export type LocationViewMode = 'grid' | 'table' | 'list';
 
 export interface LocationFilters {
   city?: string;

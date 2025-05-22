@@ -44,19 +44,19 @@ export const schedulerReducer = (state = initialState, action: any): SchedulerSt
       };
 
     // Events actions
-    case ActionTypes.FETCH_EVENTS_REQUEST:
+    case "FETCH_EVENTS_REQUEST":
       return {
         ...state,
         loading: { ...state.loading, events: true },
         error: { ...state.error, events: undefined },
       };
-    case ActionTypes.FETCH_EVENTS_SUCCESS:
+    case "FETCH_EVENTS_SUCCESS":
       return {
         ...state,
         currentSeries: action.payload,
         loading: { ...state.loading, events: false },
       };
-    case ActionTypes.FETCH_EVENTS_FAILURE:
+    case "FETCH_EVENTS_FAILURE":
       return {
         ...state,
         loading: { ...state.loading, events: false },
@@ -167,19 +167,19 @@ export const schedulerReducer = (state = initialState, action: any): SchedulerSt
       };
 
     // Add Event Song actions
-    case ActionTypes.ADD_EVENT_SONG_REQUEST:
+    case "ADD_EVENT_SONG_REQUEST":
       return {
         ...state,
         loading: { ...state.loading, eventSongs: true },
         error: { ...state.error, eventSongs: undefined },
       };
-    case ActionTypes.ADD_EVENT_SONG_SUCCESS:
+    case "ADD_EVENT_SONG_SUCCESS":
       return {
         ...state,
         eventSongs: [...state.eventSongs, action.payload],
         loading: { ...state.loading, eventSongs: false },
       };
-    case ActionTypes.ADD_EVENT_SONG_FAILURE:
+    case "ADD_EVENT_SONG_FAILURE":
       return {
         ...state,
         loading: { ...state.loading, eventSongs: false },
@@ -187,12 +187,12 @@ export const schedulerReducer = (state = initialState, action: any): SchedulerSt
       };
 
     // Set current series/event
-    case ActionTypes.SET_CURRENT_SERIES:
+    case "SET_CURRENT_SERIES":
       return {
         ...state,
         currentSeries: action.payload,
       };
-    case ActionTypes.SET_CURRENT_EVENT:
+    case "SET_CURRENT_EVENT":
       return {
         ...state,
         currentEvent: action.payload,

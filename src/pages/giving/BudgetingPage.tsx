@@ -1,13 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/TaskManagerPage.css';
-import LeftMenu from '../../components/Left Menu/LeftMenu';
-import RAIChat from '../../components/RAI_Chat/RAIChat';
-import TopMenu from '../../components/Top Menu/TopMenu';
-import SubMenu from '../../components/Sub Menu/SubMenu';
-import AccountSelectorWidget from '../../widgets/givingwidget/AccountSelectorWidget';
-import BudgetSummaryWidget from '../../widgets/givingwidget/BudgetSummaryWidget';
-import BudgetBuilderWidget from '../../widgets/givingwidget/BudgetBuilderWidget';
+import { getComponentPath } from '../../utils/pathconfig';
 
+// Using the getComponentPath function to import components with spaces in their paths
+const LeftMenu = require(getComponentPath('../../', 'LEFT_MENU')).default;
+const RAIChat = require(getComponentPath('../../', 'RAI_CHAT')).default;
+const TopMenu = require(getComponentPath('../../', 'TOP_MENU')).default;
+const SubMenu = require(getComponentPath('../../', 'SUB_MENU')).default;
+import AccountSelectorWidget from '../../widgets/givingwidget/AccountSelectorWidget';
+// Use existing budget components from financewidget as replacements
+import BudgetModule from '../../widgets/financewidget/modules/budget/BudgetModule';
+import BudgetChart from '../../widgets/financewidget/modules/budget/BudgetChart';
+
+// Mock data for budget chart
+const MOCK_BUDGET_CATEGORIES = [
+  { id: '1', name: 'Staff', budgeted: 50000, actual: 48000 },
+  { id: '2', name: 'Facilities', budgeted: 30000, actual: 32000 },
+  { id: '3', name: 'Programs', budgeted: 20000, actual: 18000 },
+  { id: '4', name: 'Missions', budgeted: 15000, actual: 15000 },
+];
+
+const MOCK_TOTAL_INCOME = 150000;
 
 const MOCK_ACCOUNTS = [
   'General Fund',
@@ -100,11 +113,15 @@ const BudgetingPage: React.FC = () => {
               <AccountSelectorWidget selectedAccount={selectedAccount} onAccountChange={setSelectedAccount} />
             </div>
             <div style={{ flex: 1, background: 'transparent', minHeight: '340px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', padding: '24px' }}>
-              <BudgetSummaryWidget selectedAccount={selectedAccount} />
+              <BudgetChart 
+                categories={MOCK_BUDGET_CATEGORIES} 
+                displayMode="percent" 
+                totalIncome={MOCK_TOTAL_INCOME} 
+              />
             </div>
           </div>
           <div style={{ background: 'transparent', minHeight: '480px', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', width: '100%', padding: '32px 16px' }}>
-            <BudgetBuilderWidget />
+            <BudgetModule />
           </div>
         </main>
         <RAIChat 

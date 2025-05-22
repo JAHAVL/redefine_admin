@@ -2,8 +2,8 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import './styles/App.css';
 
-// Import AppRoutes from the routes directory
-const AppRoutes = React.lazy(() => import('./routes/AppRoutes'));
+// Import ProtectedRoutes from the routes directory
+const ProtectedRoutes = React.lazy(() => import('./routes/ProtectedRoutes'));
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,7 +43,7 @@ const App: React.FC = () => {
               Loading routes...
             </div>
           }>
-            <AppRoutes />
+            <ProtectedRoutes />
           </Suspense>
         )}
       </div>

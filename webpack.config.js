@@ -15,6 +15,9 @@ module.exports = {
   // Resolve file extensions
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx'],
+    alias: {
+      '@': path.resolve(__dirname, 'src')
+    },
     fallback: {
       "http": require.resolve("stream-http"),
       "https": require.resolve("https-browserify"),

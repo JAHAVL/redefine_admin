@@ -21,6 +21,7 @@ const AccountsPageNEW = React.lazy(() => import('../pages/finance/AccountsPageNE
 const ReportsPageNEW = React.lazy(() => import('../pages/finance/ReportsPageNEW'));
 const ReconciliationPageNEW = React.lazy(() => import('../pages/finance/ReconciliationPageNEW'));
 const StatementsPageNEW = React.lazy(() => import('../pages/finance/StatementsPageNEW'));
+// Locations Page - Using a single unified page component for all location views
 const LocationsPage = React.lazy(() => import('../pages/Locations/LocationsPage'));
 
 // Post Creator Pages
@@ -125,12 +126,15 @@ const ProtectedRoutes: React.FC = () => {
                 element={<ProtectedRoute component={GroupsPageNEW} />} 
             />
             
-            {/* Locations Routes */}
+            {/* Locations Routes - All handled by the unified LocationsPage component */}
             <Route path="/locations">
               <Route index element={<ProtectedRoute component={LocationsPage} />} />
               <Route path="map" element={<ProtectedRoute component={LocationsPage} />} />
               <Route path="analytics" element={<ProtectedRoute component={LocationsPage} />} />
               <Route path="settings" element={<ProtectedRoute component={LocationsPage} />} />
+              <Route path="details/:id" element={<ProtectedRoute component={LocationsPage} />} />
+              <Route path="edit/:id" element={<ProtectedRoute component={LocationsPage} />} />
+              <Route path="create" element={<ProtectedRoute component={LocationsPage} />} />
               <Route path="*" element={<Navigate to="/locations" replace />} />
             </Route>
             

@@ -3,6 +3,27 @@
  */
 
 /**
+ * Mail interface
+ */
+export interface Mail {
+  id: string;
+  from: string;
+  to: string;
+  subject: string;
+  body: string;
+  date: string;
+  read: boolean;
+  starred: boolean;
+  attachments?: {
+    name: string;
+    type: string;
+    size: number;
+    url: string;
+  }[];
+  folder: 'inbox' | 'sent' | 'drafts' | 'trash' | 'starred';
+}
+
+/**
  * Mail Account interface
  */
 export interface MailAccount {

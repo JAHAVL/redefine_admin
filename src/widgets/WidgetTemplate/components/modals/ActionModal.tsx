@@ -36,6 +36,7 @@ export interface ActionModalProps {
     title?: string;
     children: ReactNode;
     triggerRef: React.RefObject<HTMLElement>;
+    buttonRect?: DOMRect | null; // Optional rect for precise positioning
     maxWidth?: string;
 }
 
@@ -53,11 +54,11 @@ const ModalOverlay = styled.div`
     bottom: 0;
     background-color: transparent;
     display: flex;
-    z-index: 1000;
+    z-index: 9999; /* Increased z-index to ensure visibility */
 `;
 
 const ModalContainer = styled.div<ModalPositionProps & { isVisible: boolean; maxWidth?: string }>`
-    position: absolute;
+    position: fixed; /* Changed from absolute to fixed for consistent positioning */
     top: ${(props: ModalPositionProps) => props.top}px;
     left: ${(props: ModalPositionProps) => props.left}px;
     background: rgba(30, 41, 59, 0.85);
@@ -76,6 +77,7 @@ const ModalContainer = styled.div<ModalPositionProps & { isVisible: boolean; max
     transform: ${(props: { isVisible: boolean }) => (props.isVisible ? 'scale(1)' : 'scale(0.95)')};
     transform-origin: ${(props: ModalPositionProps) => props.transformOrigin};
     color: white;
+    z-index: 9999; /* Explicitly setting a very high z-index */
 `;
 
 const ModalHeader = styled.div`
@@ -121,6 +123,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
     title,
     children,
     triggerRef,
+    buttonRect,
     maxWidth
 }) => {
     const [modalPosition, setModalPosition] = useState<ModalPositionProps>({
@@ -131,47 +134,59 @@ const ActionModal: React.FC<ActionModalProps> = ({
     const [isVisible, setIsVisible] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Position the modal directly adjacent to the button
+    // Position the modal adjacent to the button using either buttonRect or triggerRef
     useEffect(() => {
-        if (isOpen && triggerRef.current) {
+        if (isOpen) {
             const calculatePosition = () => {
-                if (!triggerRef.current || !modalRef.current) return;
+                let rect: DOMRect | null = null;
                 
-                const triggerRect = triggerRef.current.getBoundingClientRect();
-                const modalRect = modalRef.current.getBoundingClientRect();
+                // Use the provided buttonRect if available, otherwise get from triggerRef
+                if (buttonRect) {
+                    rect = buttonRect;
+                } else if (triggerRef.current) {
+                    rect = triggerRef.current.getBoundingClientRect();
+                } else {
+                    return; // Cannot position without a reference
+                }
+                
+                // IMPROVED POSITIONING: Detect best position based on available space
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
                 
-                // Try to position the modal to the right of the button first
-                let left = triggerRect.right + 3; // Very close to the button
-                let top = triggerRect.top;
-                let transformOrigin = 'left center';
+                // Check if there's enough space to the right
+                const rightSpace = viewportWidth - rect.right;
+                const leftSpace = rect.left;
+                const modalWidth = 240; // Approximate modal width
                 
-                // If there's not enough space on the right, try left side
-                if (left + modalRect.width > viewportWidth - 10) {
-                    left = triggerRect.left - modalRect.width - 3;
+                let left: number;
+                let top: number;
+                let transformOrigin: string;
+                
+                // Position horizontally - prefer right side if there's space
+                if (rightSpace >= modalWidth + 10) {
+                    // Position to the right
+                    left = rect.right + 10;
+                    transformOrigin = 'left center';
+                } else if (leftSpace >= modalWidth + 10) {
+                    // Position to the left if there's not enough space on right
+                    left = rect.left - modalWidth - 10;
                     transformOrigin = 'right center';
-                    
-                    // If there's also not enough space on the left, position below
-                    if (left < 10) {
-                        left = Math.max(10, triggerRect.left);
-                        top = triggerRect.bottom + 3;
-                        transformOrigin = 'top left';
-                        
-                        // If there's not enough space below, try above
-                        if (top + modalRect.height > viewportHeight - 10) {
-                            top = triggerRect.top - modalRect.height - 3;
-                            transformOrigin = 'bottom left';
-                        }
-                    }
+                } else {
+                    // Center it if there's not enough space on either side
+                    left = Math.max(10, rect.left + (rect.width / 2) - (modalWidth / 2));
+                    transformOrigin = 'center top';
                 }
                 
-                // Final boundary checks
-                if (top < 10) top = 10;
-                if (top + modalRect.height > viewportHeight - 10) {
-                    top = viewportHeight - modalRect.height - 10;
+                // Position vertically - align with button
+                top = rect.top;
+                
+                // Ensure the modal stays within viewport vertically
+                const modalHeight = 300; // Approximate max modal height
+                if (top + modalHeight > viewportHeight) {
+                    top = Math.max(10, viewportHeight - modalHeight - 10);
                 }
                 
+                // Set position with improved calculations
                 setModalPosition({
                     top,
                     left,
@@ -191,7 +206,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
         } else {
             setIsVisible(false);
         }
-    }, [isOpen, triggerRef]);
+    }, [isOpen, triggerRef, buttonRect]);
     
     // Close on click outside
     useEffect(() => {

@@ -140,17 +140,21 @@ const ButtonGroup = styled('div')`
   margin-top: 1rem;
 `;
 
-const Button = styled('button')<{ primary?: boolean }>`
+interface ButtonProps {
+  primary?: boolean;
+}
+
+const Button = styled('button')<ButtonProps>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
-  background-color: ${props => props.primary ? '#4a6cf7' : '#f1f1f1'};
-  color: ${props => props.primary ? 'white' : '#333'};
+  background-color: ${(props: ButtonProps) => props.primary ? '#4a6cf7' : '#f1f1f1'};
+  color: ${(props: ButtonProps) => props.primary ? 'white' : '#333'};
   
   &:hover {
-    background-color: ${props => props.primary ? '#3a5ce5' : '#e5e5e5'};
+    background-color: ${(props: ButtonProps) => props.primary ? '#3a5ce5' : '#e5e5e5'};
   }
   
   &:disabled {
@@ -268,7 +272,7 @@ const AddSeriesModal: React.FC<AddSeriesModalProps> = ({ isOpen, onClose, isSpec
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={e => e.stopPropagation()}>
+      <ModalContent onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>{isSpecial ? 'Add Special Series' : 'Add New Series'}</ModalTitle>
           <CloseButton onClick={onClose}>&times;</CloseButton>

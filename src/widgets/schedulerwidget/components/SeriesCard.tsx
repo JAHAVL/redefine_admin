@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Series } from '../types';
+import { theme } from '../theme';
 
 interface SeriesCardProps {
   series: Series;
@@ -10,65 +11,69 @@ interface SeriesCardProps {
 
 const Card = styled.div`
   position: relative;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: ${theme.colors.card};
+  border-radius: ${theme.borderRadius.md};
+  box-shadow: ${theme.shadows.sm};
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: ${theme.transitions.default};
   cursor: pointer;
   height: 100%;
   
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: ${theme.shadows.md};
   }
 `;
 
-const CardImage = styled.div<{ backgroundImage?: string }>`
+interface CardImageProps {
+  backgroundImage?: string;
+}
+
+const CardImage = styled.div<CardImageProps>`
   width: 100%;
   height: 180px;
-  background-color: #f0f0f0;
-  background-image: ${props => props.backgroundImage ? `url(${props.backgroundImage})` : 'none'};
+  background-color: ${theme.colors.highlight};
+  background-image: ${(props: CardImageProps) => props.backgroundImage ? `url(${props.backgroundImage})` : `linear-gradient(to right, ${theme.colors.primary}, ${theme.colors.primaryDark})`};
   background-size: cover;
   background-position: center;
 `;
 
 const CardContent = styled.div`
-  padding: 1rem;
+  padding: ${theme.spacing.md};
 `;
 
 const CardTitle = styled.h3`
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  margin: 0 0 ${theme.spacing.sm};
+  font-size: ${theme.typography.fontSizes.lg};
+  font-weight: ${theme.typography.fontWeights.semibold};
+  color: ${theme.colors.text.primary};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
 const CardDate = styled.p`
-  margin: 0;
-  font-size: 0.875rem;
-  color: #666;
+  margin: 0 0 ${theme.spacing.sm};
+  font-size: ${theme.typography.fontSizes.sm};
+  color: ${theme.colors.text.secondary};
 `;
 
 const DeleteButton = styled.button`
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 50%;
+  top: ${theme.spacing.sm};
+  right: ${theme.spacing.sm};
   width: 32px;
   height: 32px;
+  border-radius: ${theme.borderRadius.round};
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
   z-index: 10;
+  opacity: 0;
+  transition: ${theme.transitions.default};
   
   ${Card}:hover & {
     opacity: 1;

@@ -1,5 +1,7 @@
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
+
+// Using direct imports for TaskManager components
 import TaskManagerWidget from '../../widgets/TaskManagerWidget/TaskManagerWidget';
 
 /**

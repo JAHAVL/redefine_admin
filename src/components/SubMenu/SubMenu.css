@@ -1,122 +1,207 @@
 /* SubMenu.css */
 .sub-menu {
-  background-color: var(--secondary-color); /* Using the theme variable */
+  background-color: var(--secondary-color);
   padding: 8px 15px;
   position: relative;
-  z-index: 1000; /* Significantly increased to ensure it's always on top */
-  border-radius: 16px; /* Increased border radius */
-  width: 80%; /* Reduced from calc(100% - 20px) to 80% */
-  max-width: 800px; /* Added max-width limit */
-  margin: 0 auto 40px auto; /* Centered with auto margins on left/right */
-  box-shadow: 0 4px 12px var(--shadow-color); /* Using theme shadow variable */
+  z-index: 1000;
+  border-radius: 16px;
+  width: 80%;
+  max-width: 800px;
+  margin: 0 auto 40px auto;
+  box-shadow: 0 4px 12px var(--shadow-color);
   height: var(--submenu-height);
-  display: flex; /* Added to center content */
-  justify-content: center; /* Added to center content */
-  align-items: center; /* Added to center content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-light);
 }
 
-.sub-menu ul {
+.submenu-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.submenu-list {
   display: flex;
   list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
+  margin: 0 auto;
+  padding: 0 20px;
+  justify-content: center;
+  gap: 24px;
+  min-width: max-content;
+  width: 100%;
 }
 
 /* Hide scrollbar but allow scrolling */
-.sub-menu ul::-webkit-scrollbar {
-  height: 0;
-  width: 0;
+.submenu-container::-webkit-scrollbar {
+  height: 4px;
   background: transparent;
 }
 
-.sub-menu li {
-  margin-right: 20px;
-  padding: 5px 8px;
-  cursor: pointer;
+.submenu-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  color: var(--text-muted);
 }
 
-.sub-menu li:hover {
-  background-color: var(--hover-bg); /* Using theme hover variable */
+.submenu-item {
+  display: inline-block;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 40px;
+  vertical-align: middle;
+}
+
+.submenu-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
   color: var(--accent-color);
 }
 
-.sub-menu li.active {
-  background-color: rgba(66, 153, 225, 0.1); /* Blue glow similar to LeftMenu */
-  color: var(--accent-color); /* Accent color for active item */
-  box-shadow: 0 0 8px rgba(66, 153, 225, 0.3); /* Subtle glow effect */
+.submenu-item.active {
+  background-color: rgba(25, 118, 210, 0.1);
+  color: var(--accent-color);
   font-weight: 500;
 }
 
-.sub-menu .menu-icon {
-  margin-right: 6px;
-  display: flex;
-  align-items: center;
-}
-
-/* Centered icons for SubMenu */
-.centered-icons {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Added to improve vertical centering */
-  gap: 60px; /* Increased gap for better spacing */
+.menu-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  color: inherit;
   margin: 0;
-  padding: 15px 20px; /* Added vertical padding */
-  width: 100%; /* Ensure full width of container */
-  list-style: none; /* Remove default list styling */
+  padding: 0;
+  line-height: 1;
+  text-align: center;
 }
 
-.centered-icons li {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* Changed to circular icons */
-  cursor: pointer;
+.menu-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background-color: var(--tooltip-bg, #333);
+  color: var(--tooltip-text, #fff);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
   transition: all 0.2s ease;
+  z-index: 1000;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.centered-icons li:hover {
-  background-color: var(--hover-bg); /* Using theme hover variable */
-  transform: translateY(-2px);
+.submenu-item:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
-.centered-icons li.active {
-  background-color: rgba(66, 153, 225, 0.15); /* Blue glow similar to LeftMenu */
-  box-shadow: 0 0 8px rgba(66, 153, 225, 0.3); /* Subtle glow effect */
-  color: var(--accent-color); /* Accent color for active icon */
+/* Ensure SVG icons are colored correctly when active */
+.submenu-item.active .menu-icon svg {
+  stroke: currentColor;
 }
 
-.centered-icons .menu-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text-light); /* Using theme text variable */
-}
-
-/* Ensure SVG icons are also colored correctly when active */
-.centered-icons li.active .menu-icon svg {
-  stroke: var(--accent-color); /* Blue accent color for the active icon */
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .submenu-list {
+    gap: 16px;
+  }
+  
+  .submenu-item {
+    min-width: 70px;
+    padding: 8px 10px;
+  }
+  
+  .menu-label {
+    font-size: 10.5px;
+  }
 }
 
 @media (max-width: 768px) {
   .sub-menu {
-    padding: 6px 10px;
-    margin-bottom: 5px;
+    width: 95%;
+    padding: 6px 5px;
+    margin-bottom: 20px;
   }
   
-  .sub-menu li {
-    margin-right: 10px;
-    padding: 4px 6px;
-    font-size: 13px;
+  .submenu-list {
+    justify-content: flex-start;
+    padding: 0 15px;
+    gap: 12px;
+  }
+  
+  .submenu-item {
+    min-width: 60px;
+    padding: 6px 8px;
+  }
+  
+  .menu-label {
+    font-size: 10px;
+  }
+  
+  .menu-icon {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .submenu-list {
+    gap: 8px;
+  }
+  
+  .submenu-item {
+    min-width: 50px;
+    padding: 6px 4px;
+  }
+  
+  .menu-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .menu-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .menu-label {
+    font-size: 9px;
   }
 }

@@ -1,0 +1,116 @@
+/* MainPageTemplate.css */
+:root {
+  --header-height: 80px;
+  --submenu-height: 60px;
+  --rai-width: 300px;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 70px;
+  --content-gap: 20px; /* Consistent spacing for container gaps */
+  
+  /* Colors */
+  --bg-dark: #1a1c23;
+  --bg-dark-accent: #22252e;
+  --bg-dark-lighter: #2d3748;
+  --text-light: #e2e8f0;
+  --text-muted: #a0aec0;
+  --border-dark: #2d3748;
+  --accent-color: #4299e1;
+  --accent-hover: #3182ce;
+  --container-bg: transparent;
+}
+
+.main-page-template {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: transparent; /* Changed from white to transparent */
+  color: var(--text-light);
+}
+
+/* Single container that will hold all UI components */
+.single-app-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background-color: transparent; /* Transparent background */
+  padding: 0; /* Changed from 10px to 0 */
+  border: none; /* Ensure no border */
+  box-shadow: none; /* Remove any shadow */
+}
+
+/* Main content styling with margins for spacing */
+.main-content {
+  position: absolute;
+  top: calc(var(--header-height) + var(--submenu-height) + 20px);
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  border-radius: 10px;
+  padding: 20px;
+  overflow: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  z-index: 25; /* Increased from 10 to be above LeftMenu but below SubMenu */
+}
+
+/* Mobile menu styles */
+.mobileMenuDesign {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: 100%;
+  height: calc(100vh - var(--header-height));
+  background-color: var(--dark-bg);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.4);
+}
+
+.mobileMenuDesign.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-content {
+  padding: 20px;
+}
+
+/* Media queries updated to avoid conflicts with main content positioning */
+@media (max-width: 992px) {
+  .admin-dashboard-left {
+    display: none;
+  }
+    
+  .rai-chat-container {
+    display: none;
+  }
+  
+  /* Do not override right margin for main-content */
+}
+
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    padding: 10px;
+  }
+  
+  /* Preserve main content padding but don't affect positioning */
+  html body .main-content {
+    padding: 15px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-content-wrapper {
+    padding: 5px;
+  }
+  
+  /* Preserve main content padding but don't affect positioning */
+  html body .main-content {
+    padding: 10px !important;
+  }
+}

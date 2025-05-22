@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../../../WidgetTemplate/theme';
-import HeaderEditModal from './HeaderEditModal';
+import HeaderEditModal from '../../../../schedulerwidget/components/modals/HeaderEditModal';
 
 // Types
 interface HeaderItemProps {
@@ -148,6 +148,9 @@ const HeaderItem: React.FC<HeaderItemProps> = ({
     // State and ref for modal
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const editButtonRef = useRef<HTMLButtonElement>(null);
+    // Important: Add state for the button rectangle to ensure consistent positioning
+    // Store position values separately instead of as a DOMRect to avoid TypeScript issues
+    const [buttonPosition, setButtonPosition] = useState<{top: number; left: number; right: number; width: number} | null>(null);
     
     useEffect(() => {
         // Focus the input when entering edit mode
@@ -192,10 +195,28 @@ const HeaderItem: React.FC<HeaderItemProps> = ({
         setIsEditing(false);
     };
     
-    // Modal handlers
+    // Direct modal opening function with position capture
     const openModal = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // Capture the button's position before opening the modal
+        if (editButtonRef.current) {
+            const rect = editButtonRef.current.getBoundingClientRect();
+            
+            // Store only the position values we need
+            const position = {
+                top: rect.top,
+                left: rect.left,
+                right: rect.right,
+                width: rect.width
+            };
+            
+            console.log('Edit button position:', position);
+            setButtonPosition(position);
+        }
+        
+        // Open the modal after capturing position
         setIsModalOpen(true);
     };
     
@@ -219,6 +240,32 @@ const HeaderItem: React.FC<HeaderItemProps> = ({
     const getButtonElement = (): HTMLElement | null => {
         return editButtonRef.current;
     };
+    
+    // Update button position if window is resized while modal is open
+    useEffect(() => {
+        if (!isModalOpen) return;
+        
+        const updateButtonPosition = (): void => {
+            if (editButtonRef.current) {
+                const rect = editButtonRef.current.getBoundingClientRect();
+                // Extract only the position values we need
+                setButtonPosition({
+                    top: rect.top,
+                    left: rect.left,
+                    right: rect.right,
+                    width: rect.width
+                });
+            }
+        };
+        
+        // Update position immediately and on resize
+        updateButtonPosition();
+        window.addEventListener('resize', updateButtonPosition);
+        
+        return () => {
+            window.removeEventListener('resize', updateButtonPosition);
+        };
+    }, [isModalOpen]);
     
     const handleDelete = (): void => {
         console.log(`Delete header with id: ${id}`);
@@ -278,7 +325,7 @@ const HeaderItem: React.FC<HeaderItemProps> = ({
                 </ActionButton>
             </ActionButtonsContainer>
             
-            {/* Edit title and color modal that renders in specified container */}
+            {/* Edit title and color modal following the exact pattern from EventSideTabs */}
             <HeaderEditModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
@@ -287,7 +334,7 @@ const HeaderItem: React.FC<HeaderItemProps> = ({
                 currentTitle={title}
                 currentColor={color}
                 triggerRef={editButtonRef}
-                containerSelector=".sc-bXWnss.cyNMQV" /* CSS selector matching the DOM element @[dom-element:div:P] */
+                buttonPosition={buttonPosition} // Pass position values instead of buttonRect
             />
         </HeaderContainer>
     );

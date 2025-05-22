@@ -75,47 +75,48 @@ const LocationsToolbar: React.FC<LocationsToolbarProps> = ({
                 display: 'flex', 
                 width: '100%',
                 backgroundColor: 'var(--secondary-color, #202020)', 
-                borderRadius: '16px',
+                borderRadius: '12px',
                 border: '1px solid var(--border-color, #393737)',
                 p: 1.5,
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                mb: 3,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                mb: 2,
                 flexWrap: { xs: 'wrap', md: 'nowrap' },
-                gap: { xs: 2, md: 0 }
+                gap: { xs: 1.5, md: 1 }
             }}>
                 {/* Search Bar */}
                 <Box sx={{ 
                     display: 'flex', 
                     flex: { xs: '1 1 100%', md: '1 1 auto' },
                     backgroundColor: 'var(--app-background, #181818)', 
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     border: '1px solid var(--border-color, #393737)',
-                    py: 1,
-                    px: 2,
+                    py: 0.75,
+                    px: 1.5,
                     alignItems: 'center',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.2s ease',
                     mr: { xs: 0, md: 2 },
-                    maxWidth: { md: '450px' },
+                    width: '100%',
+                    maxWidth: { sm: '100%', md: '450px' },
                     minWidth: { md: '300px' },
-                    height: '48px',
+                    height: '40px',
                     '&:hover': {
                         borderColor: 'var(--primary-color, #3478ff)'
                     },
                     '&:focus-within': {
                         borderColor: 'var(--primary-color, #3478ff)',
-                        boxShadow: '0 0 0 2px rgba(52, 120, 255, 0.2)'
+                        boxShadow: '0 0 0 1px rgba(52, 120, 255, 0.2)'
                     }
                 }}>
-                    <SearchIcon sx={{ color: 'var(--primary-color, #3478ff)', mr: 1.5, fontSize: 22 }} />
+                    <SearchIcon sx={{ color: 'var(--primary-color, #3478ff)', mr: 1, fontSize: 18 }} />
                     <InputBase
                         placeholder="Search locations..."
                         value={filters.searchTerm || ''}
                         onChange={(e) => onFilterChange({ ...filters, searchTerm: e.target.value })}
                         sx={{ 
                             color: 'var(--text-light, #ffffff)',
-                            '& input': { fontSize: '1rem', padding: '6px 0' },
+                            '& input': { fontSize: '0.9rem', padding: '4px 0' },
                             '& ::placeholder': { color: 'var(--text-muted, rgba(255, 255, 255, 0.5))' },
                             flex: 1
                         }}
@@ -136,7 +137,7 @@ const LocationsToolbar: React.FC<LocationsToolbarProps> = ({
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'flex-end',
-                    gap: 1.5,
+                    gap: 2,
                     flex: { xs: '1 1 100%', md: '0 0 auto' },
                     flexWrap: { xs: 'wrap', md: 'nowrap' },
                 }}>
@@ -144,54 +145,55 @@ const LocationsToolbar: React.FC<LocationsToolbarProps> = ({
                     <Box sx={{ 
                         display: 'flex', 
                         backgroundColor: 'var(--app-background, #181818)', 
-                        borderRadius: '12px',
-                        padding: '4px',
+                        borderRadius: '8px',
+                        padding: '3px',
                         border: '1px solid var(--border-color, #393737)',
-                        height: '48px',
+                        height: '36px',
+                        minWidth: '90px',
                     }}>
                         <Tooltip title="Card View" arrow placement="top">
                             <IconButton 
                                 onClick={() => onViewModeChange('grid')}
-                                size="medium"
+                                size="small"
                                 sx={{ 
                                     color: viewMode === 'grid' ? '#ffffff' : 'var(--text-muted, rgba(255, 255, 255, 0.5))',
                                     backgroundColor: viewMode === 'grid' ? 'var(--primary-color, #3478ff)' : 'transparent',
-                                    borderRadius: '8px',
-                                    margin: '0 3px',
-                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    margin: '0 2px',
+                                    padding: '4px',
                                     transition: 'all 0.2s ease',
                                     '&:hover': { 
                                         backgroundColor: viewMode === 'grid' 
                                             ? 'var(--primary-color, #3478ff)' 
                                             : 'var(--hover-bg, #353535)',
-                                        transform: 'translateY(-2px)'
+                                        transform: 'translateY(-1px)'
                                     }
                                 }}
                             >
-                                <GridViewIcon />
+                                <GridViewIcon fontSize="small" />
                             </IconButton>
                         </Tooltip>
                         
                         <Tooltip title="Table View" arrow placement="top">
                             <IconButton 
                                 onClick={() => onViewModeChange('table')}
-                                size="medium"
+                                size="small"
                                 sx={{ 
                                     color: viewMode === 'table' ? '#ffffff' : 'var(--text-muted, rgba(255, 255, 255, 0.5))',
                                     backgroundColor: viewMode === 'table' ? 'var(--primary-color, #3478ff)' : 'transparent',
-                                    borderRadius: '8px',
-                                    margin: '0 3px',
-                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    margin: '0 2px',
+                                    padding: '4px',
                                     transition: 'all 0.2s ease',
                                     '&:hover': { 
                                         backgroundColor: viewMode === 'table' 
                                             ? 'var(--primary-color, #3478ff)' 
                                             : 'var(--hover-bg, #353535)',
-                                        transform: 'translateY(-2px)'
+                                        transform: 'translateY(-1px)'
                                     }
                                 }}
                             >
-                                <TableRowsIcon />
+                                <TableRowsIcon fontSize="small" />
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -200,61 +202,69 @@ const LocationsToolbar: React.FC<LocationsToolbarProps> = ({
                     <Tooltip title="Toggle Filters" arrow placement="top">
                         <Button
                             variant="outlined"
-                            color="primary"
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            startIcon={<FilterAltIcon />}
+                            startIcon={<FilterAltIcon sx={{ fontSize: 18 }} />}
+                            size="small"
                             sx={{
-                                height: '48px',
-                                borderRadius: '12px',
-                                borderColor: isFilterOpen ? 'var(--primary-color, #3478ff)' : 'var(--border-color, #393737)',
-                                backgroundColor: isFilterOpen ? 'rgba(52, 120, 255, 0.1)' : 'var(--app-background, #181818)',
-                                color: isFilterOpen ? 'var(--primary-color, #3478ff)' : 'var(--text-light, #ffffff)',
+                                borderRadius: '6px',
+                                padding: '4px 10px',
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                height: '36px',
+                                borderColor: activeFilterCount > 0 ? 'var(--primary-color, #3478ff)' : 'var(--border-color, #393737)',
+                                color: activeFilterCount > 0 ? 'var(--primary-color, #3478ff)' : 'var(--text-muted, rgba(255, 255, 255, 0.7))',
+                                backgroundColor: activeFilterCount > 0 ? 'rgba(52, 120, 255, 0.1)' : 'transparent',
                                 textTransform: 'none',
-                                fontWeight: 600,
-                                px: 2,
+                                fontSize: '0.85rem',
                                 '&:hover': {
-                                    borderColor: 'var(--primary-color, #3478ff)',
-                                    backgroundColor: 'rgba(52, 120, 255, 0.1)'
+                                    backgroundColor: activeFilterCount > 0 ? 'rgba(52, 120, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'
                                 }
                             }}
                         >
-                            Filters {activeFilterCount > 0 && (
-                                <Chip 
-                                    size="small" 
-                                    label={activeFilterCount} 
-                                    sx={{ 
-                                        ml: 1, 
+                            Filters
+                            {activeFilterCount > 0 && (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        ml: 1,
                                         backgroundColor: 'var(--primary-color, #3478ff)',
-                                        color: '#ffffff',
-                                        height: 20,
-                                        minWidth: 20,
-                                        fontSize: '0.75rem'
+                                        color: '#fff',
+                                        borderRadius: '50%',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: 18,
+                                        minWidth: 18,
+                                        fontSize: '0.7rem'
                                     }} 
-                                />
+                                >
+                                    {activeFilterCount}
+                                </Box>
                             )}
                         </Button>
                     </Tooltip>
                     
-                    {/* Add Button */}
+                    {/* Create Location Button */}
                     <Button
                         variant="contained"
                         color="primary"
+                        startIcon={<AddIcon sx={{ fontSize: 18 }} />}
+                        size="small"
                         onClick={onCreateLocation}
-                        startIcon={<AddIcon sx={{ fontSize: 22 }} />}
                         sx={{
-                            height: '48px',
-                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.25)',
+                            height: '36px',
+                            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
                             background: 'linear-gradient(45deg, var(--primary-color, #3478ff) 30%, var(--primary-light, #4a8fff) 90%)',
-                            transition: 'all 0.3s ease',
-                            fontWeight: 700,
-                            paddingLeft: 2.5,
-                            paddingRight: 2.5,
-                            borderRadius: '12px',
-                            fontSize: '1rem',
+                            transition: 'all 0.2s ease',
+                            fontWeight: 600,
+                            paddingLeft: 1.5,
+                            paddingRight: 1.5,
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
                             textTransform: 'none', 
                             '&:hover': {
-                                boxShadow: '0 8px 16px rgba(52, 120, 255, 0.35)',
-                                transform: 'translateY(-3px)'
+                                boxShadow: '0 4px 12px rgba(52, 120, 255, 0.3)',
+                                transform: 'translateY(-2px)'
                             },
                             '&:active': {
                                 transform: 'translateY(-1px)',

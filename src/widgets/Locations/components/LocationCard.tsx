@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     Card, 
     CardContent, 
@@ -29,6 +30,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
     onEdit, 
     onDelete 
 }) => {
+    const navigate = useNavigate();
     const mapRef = useRef<HTMLDivElement>(null);
     
     // Initialize map when component mounts
@@ -114,13 +116,14 @@ export const LocationCard: React.FC<LocationCardProps> = ({
                 backgroundColor: 'var(--card-background, #242424)',
                 borderRadius: 2,
                 overflow: 'hidden',
-                transition: 'transform 0.3s ease',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                cursor: 'pointer',
                 '&:hover': {
                     transform: 'translateY(-5px)',
                     boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)'
                 }
             }}
-            onClick={() => onViewDetails(location)}
+            onClick={() => navigate(`/locations/details/${location.id}`)}
         >
             {/* Map Area */}
             <Box
@@ -193,7 +196,7 @@ export const LocationCard: React.FC<LocationCardProps> = ({
                         size="small"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onViewDetails(location);
+                            navigate(`/locations/details/${location.id}`);
                         }}
                         sx={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.7))' }}
                     >

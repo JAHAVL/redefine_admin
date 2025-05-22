@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -29,6 +30,8 @@ interface LocationTableProps {
 }
 
 export const LocationTable: React.FC<LocationTableProps> = ({ locations, onEdit, onDelete, onRowClick }) => {
+  const navigate = useNavigate();
+  
   return (
     <TableContainer component={Paper} sx={{ 
       backgroundColor: 'var(--secondary-color, #202020)', 
@@ -58,6 +61,7 @@ export const LocationTable: React.FC<LocationTableProps> = ({ locations, onEdit,
           {locations.map((location) => (
             <TableRow 
               key={location.id} 
+              onClick={() => navigate(`/locations/details/${location.id}`)}
               sx={{ 
                 '&:last-child td, &:last-child th': { border: 0 },
                 '&:hover': { backgroundColor: 'var(--hover-bg, #353535)' },
@@ -65,7 +69,8 @@ export const LocationTable: React.FC<LocationTableProps> = ({ locations, onEdit,
                   color: 'var(--text-light, #ffffff)',
                   borderBottom: '1px solid var(--border-color, #393737)'
                 },
-                cursor: onRowClick ? 'pointer' : 'default'
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease'
               }}
             >
               <TableCell component="th" scope="row">
@@ -144,11 +149,23 @@ export const LocationTable: React.FC<LocationTableProps> = ({ locations, onEdit,
                   </IconButton>
                 </Tooltip>
               </TableCell>
-              <TableCell align="right">
+              <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                <Tooltip title="View Details">
+                  <IconButton 
+                    size="small" 
+                    onClick={() => navigate(`/locations/details/${location.id}`)}
+                    sx={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.7))' }}
+                  >
+                    <OpenInNewIcon />
+                  </IconButton>
+                </Tooltip>
                 <Tooltip title="Edit">
                   <IconButton 
                     size="small" 
-                    onClick={() => onEdit(location)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(location);
+                    }}
                     sx={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.5))' }}
                   >
                     <EditIcon fontSize="small" />
@@ -157,7 +174,10 @@ export const LocationTable: React.FC<LocationTableProps> = ({ locations, onEdit,
                 <Tooltip title="Delete">
                   <IconButton 
                     size="small" 
-                    onClick={() => onDelete(location.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(location.id);
+                    }}
                     sx={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.5))' }}
                   >
                     <DeleteIcon fontSize="small" />

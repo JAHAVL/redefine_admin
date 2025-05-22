@@ -70,8 +70,8 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ activeItem = 'dashboard', onCollaps
     { id: 'giving', label: 'Giving', icon: 'https://images.ctfassets.net/1itkm9rji8jb/2Tm3pHUA0oiUCmU5nsT4l4/a7e43a934909b17de1d9af6837ddfb02/ico-giving.svg', link: '/giving' },
     { id: 'finance', label: 'Finance', icon: 'dollar-sign', iconComponent: DollarSign, link: '/finance-new' },
     { id: 'livestream', label: 'Live Stream', icon: 'https://images.ctfassets.net/1itkm9rji8jb/6lyyozpxIzbB1ESrcbFC1v/27d14aac52adc9aaada713d7b48f7b22/ico-stream.svg', link: '/livestream' },
-    { id: 'locations', label: 'Locations', icon: 'map-pin', iconComponent: MapPin, link: '/locations-new' },
-    { id: 'system-posts', label: 'System Posts', icon: 'file-edit', iconComponent: FileEdit, link: '/system-posts' },
+    { id: 'locations', label: 'Locations', icon: 'map-pin', iconComponent: MapPin, link: '/locations' },
+    { id: 'system-posts', label: 'System Posts', icon: 'file-edit', iconComponent: FileEdit, link: '/content-creator' },
     { id: 'task-manager', label: 'Task Manager', icon: 'task', iconComponent: Calendar, link: '/task-manager-new' },
     { id: 'file-manager', label: 'File Manager', icon: 'file', iconComponent: FileEdit, link: '/file-manager-new' },
     { id: 'mail', label: 'Mail', icon: 'mail', iconComponent: FileEdit, link: '/mail-new' },
@@ -86,6 +86,11 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ activeItem = 'dashboard', onCollaps
     }
     // Otherwise use the image URL
     return item.icon ? <img src={item.icon} alt={item.label} className="menu-icon" /> : null;
+  };
+  
+  // Check if current path is a sub-route of the given path
+  const isActivePath = (path: string) => {
+    return window.location.pathname.startsWith(path);
   };
 
   return (
@@ -105,7 +110,11 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ activeItem = 'dashboard', onCollaps
               <li key={item.id} className={activeItem === item.id ? 'active' : ''}>
                 <NavLink
                   to={item.link}
-                  className={({ isActive }) => isActive ? 'active' : ''}
+                  className={({ isActive }) => 
+                    `menu-item ${isActive || (item.id === 'locations' && isActivePath('/locations')) ? 'active' : ''}`
+                  }
+                  key={item.id}
+                  title={collapsed ? item.label : ''}
                 >
                   {renderIcon(item)}
                   {!collapsed && <span>{item.label}</span>}

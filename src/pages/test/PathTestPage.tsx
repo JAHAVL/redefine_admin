@@ -2,7 +2,7 @@ import React from 'react';
 import { COMPONENT_PATHS, getComponentPath } from '../../utils/pathconfig';
 
 // Directly import a component using our defined paths
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
 
 /**
  * Test Page to verify our path management system works correctly

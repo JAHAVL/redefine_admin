@@ -28,7 +28,6 @@ import {
 import { LocationCard } from './components/LocationCard';
 import { LocationTable } from './components/LocationTable';
 import { CreateLocationModal } from './components/modals/CreateLocationModal';
-import { LocationDetailsModal } from './components/LocationDetailsModal';
 import LocationsToolbar from './components/LocationsToolbar';
 
 // Types
@@ -135,8 +134,7 @@ const Locations: React.FC = () => {
         state: '',
         status: ''
     });
-    const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
+    // Location details now handled by dedicated page
     const [snackbar, setSnackbar] = useState<SnackbarState>({
         open: false,
         message: '',
@@ -349,8 +347,8 @@ const Locations: React.FC = () => {
     };
     
     const handleViewLocationDetails = (location: Location): void => {
-        setSelectedLocation(location);
-        setIsDetailsModalOpen(true);
+        // Navigate to location details page instead of opening a modal
+        navigate(`/locations/details/${location.id}`);
     };
 
     const handleDeleteLocation = (id: string): void => {
@@ -460,9 +458,19 @@ const Locations: React.FC = () => {
             
             {/* Route-specific content */}
             {currentView === 'default' && (
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 2, width: '100%' }}>
                     {viewMode === 'grid' ? (
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+                    <Box sx={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: { 
+                            xs: '1fr', 
+                            sm: 'repeat(2, 1fr)', 
+                            md: 'repeat(3, 1fr)', 
+                            lg: 'repeat(4, 1fr)' 
+                        }, 
+                        gap: 3,
+                        width: '100%'
+                    }}>
                         {filteredLocations.length > 0 ? (
                             filteredLocations.map((location) => (
                                 <Box key={location.id}>
@@ -530,12 +538,13 @@ const Locations: React.FC = () => {
             
             {/* Map View */}
             {currentView === 'map' && (
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 2, width: '100%' }}>
                     <Box sx={{ 
                         display: 'flex', 
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        mb: 2 
+                        mb: 2,
+                        width: '100%'
                     }}>
                         <Typography variant="h6" sx={{ color: 'var(--text-light, #ffffff)' }}>
                             Map View
@@ -573,13 +582,15 @@ const Locations: React.FC = () => {
                         id="map-container"
                         ref={mapContainerRef}
                         sx={{ 
-                            height: '700px', 
+                            height: '75vh', // Using viewport height for better scaling
                             width: '100%', 
                             backgroundColor: 'var(--card-background, #242424)',
                             border: '1px solid var(--border-color, #393737)',
                             borderRadius: 2,
                             overflow: 'hidden',
-                            position: 'relative'
+                            position: 'relative',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                            transition: 'box-shadow 0.3s ease'
                         }}
                     >
                         {!mapLoaded && (
@@ -700,13 +711,10 @@ const Locations: React.FC = () => {
             
             {/* Settings View */}
             {currentView === 'settings' && (
-                <Box sx={{ mt: 2, p: 3, backgroundColor: 'var(--card-background, #242424)', borderRadius: 2 }}>
-                    <Typography variant="h6" sx={{ mb: 3, color: 'var(--text-light, #ffffff)' }}>
-                        Location Settings
-                    </Typography>
-                    
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="subtitle1" sx={{ mb: 2, color: 'var(--text-light, #ffffff)' }}>
+                <Box sx={{ mt: 2, width: '100%', maxWidth: '100%' }}>
+                    <Box sx={{ mt: 2, p: 3, backgroundColor: 'var(--card-background, #242424)', borderRadius: 2 }}>
+                        <Typography variant="h6" sx={{ mb: 3, color: 'var(--text-light, #ffffff)' }}>
+                            Location Settings
                             Display Settings
                         </Typography>
                         <FormControl component="fieldset">
@@ -771,20 +779,6 @@ const Locations: React.FC = () => {
                 initialData={editingLocation || undefined}
                 title={editingLocation ? 'Edit Location' : 'Create New Location'}
                 submitButtonText={editingLocation ? 'Update Location' : 'Create Location'}
-            />
-            
-            <LocationDetailsModal 
-                open={isDetailsModalOpen}
-                onClose={() => setIsDetailsModalOpen(false)}
-                location={selectedLocation}
-                onEdit={editingLocation => {
-                    setIsDetailsModalOpen(false);
-                    handleEditLocation(editingLocation);
-                }}
-                onDelete={id => {
-                    setIsDetailsModalOpen(false);
-                    handleDeleteLocation(id);
-                }}
             />
             
             {/* Snackbar for notifications */}

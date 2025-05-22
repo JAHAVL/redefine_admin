@@ -1,10 +1,11 @@
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import { getComponentPath } from '../../utils/pathconfig';
+import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
+
+// Using direct imports for finance components
 import { FinanceThemeProvider } from '../../widgets/financewidget/theme/FinanceThemeProvider';
-import { 
-  FinanceWidgetContainer,
-  FinanceContent
-} from '../../widgets/financewidget/FinanceWidgetStyled/index';
+import { FinanceWidgetContainer, FinanceContent } from '../../widgets/financewidget/FinanceWidgetStyled';
+// Import for reconciliation module - not in pathconfig yet
 import ReconciliationModule from '../../widgets/financewidget/modules/reconciliation/ReconciliationModule';
 
 /**

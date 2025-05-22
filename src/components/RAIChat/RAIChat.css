@@ -61,31 +61,102 @@
   color: var(--rai-text);
 }
 
+/* System Message Styles - from RAI_Chat_V2 */
+.system-message-container {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+  padding: 0 12px;
+}
+
+.system-message {
+  max-width: 90%;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  color: var(--rai-text);
+  font-size: 0.95rem;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in-out;
+  box-shadow: inset 3px 0 0 var(--rai-button-bg);
+}
+
+.system-message.error {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 #ef4444;
+}
+
+.system-message.warning {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 #f59e0b;
+}
+
+.system-message.success {
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 #22c55e;
+}
+
+.system-message.info {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 var(--rai-button-bg);
+}
+
+.system-message.welcome {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 var(--rai-button-bg);
+  font-size: 1rem;
+}
+
+.system-message.search {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  box-shadow: inset 3px 0 0 #7c3aed;
+}
+
+/* Chat Message Styles - updated to match RAI_Chat_V2 */
 .message {
-  max-width: 80%;
-  padding: 8px 12px;
-  border-radius: 12px;
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: flex-start;
+  margin: 8px 0;
+  padding: 0 8px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .user-message {
-  align-self: flex-end;
-  background-color: var(--rai-user-msg-bg);
-  color: var(--rai-text);
-}
-
-.ai-message {
-  align-self: flex-start;
-  background-color: var(--rai-ai-msg-bg);
-  color: var(--rai-text);
+  justify-content: flex-end;
 }
 
 .message-content {
+  max-width: 85%;
+  min-width: 60px;
+  padding: 12px;
+  border-radius: 22px 22px 4px 22px; /* Special shape for user messages */
+  background-color: rgba(59, 130, 246, 0.2); /* Semi-transparent blue for user */
+  color: var(--rai-text);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   position: relative;
+  white-space: normal; /* Prevent text from being truncated */
+  overflow: visible; /* Make sure content isn't cut off */
+  display: block; /* Ensure proper rendering of the full content */
 }
 
-.message-content p {
+.ai-message .message-content {
+  border-radius: 22px 22px 22px 4px; /* New shape for AI messages */
+  background-color: rgba(55, 55, 55, 0.4); /* Semi-transparent dark for AI */
+}
+
+.message-text {
   margin: 0 0 15px 0;
+}
+
+.message-content .message-text:last-child {
+  margin-bottom: 0;
 }
 
 .message-time {
@@ -94,6 +165,45 @@
   right: 5px;
   font-size: 0.7rem;
   color: var(--rai-text-secondary);
+}
+
+/* Added loading animation for messages */
+.message-content.loading {
+  opacity: 0.7;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dots span {
+  animation: loadingDots 1.4s infinite ease-in-out both;
+  font-size: 1.5rem;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loadingDots {
+  0%, 80%, 100% { 
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% { 
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .chat-input {
@@ -112,20 +222,25 @@
   color: var(--rai-text);
 }
 
+/* Updated send button styles to match RAI_Chat_V2 */
 .chat-input button {
   background-color: var(--rai-button-bg);
   color: var(--rai-text);
   border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: 50%; /* Circular button */
+  width: 38px;
+  height: 38px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .chat-input button:hover {
   background-color: var(--rai-button-hover);
+  transform: scale(1.05);
 }
 
 .chat-icon {

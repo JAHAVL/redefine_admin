@@ -20,10 +20,14 @@ const TabContainer = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const Tab = styled.button<{ active: boolean }>`
+interface TabProps {
+  active: boolean;
+}
+
+const Tab = styled.button<TabProps>`
   padding: 0.75rem 1.5rem;
-  background: ${props => props.active ? 'white' : '#4a6cf7'};
-  color: ${props => props.active ? 'black' : 'white'};
+  background: ${(props: TabProps) => props.active ? 'white' : '#4a6cf7'};
+  color: ${(props: TabProps) => props.active ? 'black' : 'white'};
   border: none;
   border-radius: 4px;
   margin-right: 1rem;

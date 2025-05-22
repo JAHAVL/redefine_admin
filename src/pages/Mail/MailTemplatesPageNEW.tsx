@@ -1,5 +1,7 @@
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
+
+// Using direct imports for Mail components
 import MailTemplates from '../../widgets/Mail/mailtemplates/MailTemplates';
 
 /**

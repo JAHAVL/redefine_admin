@@ -97,9 +97,13 @@ export const SeriesCard = styled.div`
   }
 `;
 
-export const CardImage = styled.div<{ backgroundImage?: string }>`
+interface CardImageProps {
+  backgroundImage?: string;
+}
+
+export const CardImage = styled.div<CardImageProps>`
   height: 160px;
-  background-image: ${props => props.backgroundImage ? `url(${props.backgroundImage})` : 'linear-gradient(to right, #4a6cf7, #3a5ce5)'};
+  background-image: ${(props: CardImageProps) => props.backgroundImage ? `url(${props.backgroundImage})` : 'linear-gradient(to right, #4a6cf7, #3a5ce5)'};
   background-size: cover;
   background-position: center;
 `;
@@ -322,13 +326,17 @@ export const SchedulerTabs = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export const SchedulerTab = styled.button<{ active?: boolean }>`
+interface TabProps {
+  active?: boolean;
+}
+
+export const SchedulerTab = styled.button<TabProps>`
   padding: 0.75rem 1.5rem;
   background: none;
   border: none;
-  border-bottom: 2px solid ${props => props.active ? '#4a6cf7' : 'transparent'};
-  color: ${props => props.active ? '#4a6cf7' : '#555'};
-  font-weight: ${props => props.active ? '600' : '400'};
+  border-bottom: 2px solid ${(props: TabProps) => props.active ? '#4a6cf7' : 'transparent'};
+  color: ${(props: TabProps) => props.active ? '#4a6cf7' : '#555'};
+  font-weight: ${(props: TabProps) => props.active ? '600' : '400'};
   cursor: pointer;
   transition: all 0.2s;
   
@@ -341,13 +349,17 @@ export const SchedulerTabContent = styled.div`
   padding: 1rem 0;
 `;
 
-export const SchedulerBadge = styled.span<{ type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' }>`
+interface BadgeProps {
+  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info';
+}
+
+export const SchedulerBadge = styled.span<BadgeProps>`
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
-  background-color: ${props => {
+  background-color: ${(props: BadgeProps) => {
     switch (props.type) {
       case 'success': return '#e6f7e6';
       case 'warning': return '#fff8e6';
@@ -356,7 +368,7 @@ export const SchedulerBadge = styled.span<{ type?: 'primary' | 'success' | 'warn
       default: return '#eee';
     }
   }};
-  color: ${props => {
+  color: ${(props: BadgeProps) => {
     switch (props.type) {
       case 'success': return '#28a745';
       case 'warning': return '#ffc107';

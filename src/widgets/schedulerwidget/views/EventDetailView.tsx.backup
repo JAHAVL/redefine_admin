@@ -1,0 +1,1986 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import { theme } from '../theme/index';
+import { Series, SeriesEvent, Team, Song } from '../types';
+import { mockEvents, mockSeries, mockSpecialSeries } from '../utils/mockData';
+import EventSideTabs, { SidebarTab as EventSidebarTab } from '../components/EventDetails/EventSideTabs';
+
+// Styled components
+const DetailContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    background-color: ${theme.colors.background};
+    color: ${theme.colors.text.primary};
+    padding: ${theme.spacing.lg};
+    border-radius: ${theme.borderRadius.md};
+    min-height: 80vh;
+`;
+
+const DateInfo = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: ${theme.spacing.md};
+    color: ${theme.colors.text.secondary};
+    font-size: ${theme.typography.fontSizes.sm};
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    border-radius: ${theme.borderRadius.sm};
+    width: fit-content;
+`;
+
+const ContentLayout = styled.div`
+    display: flex;
+    gap: ${theme.spacing.xl};
+    margin-top: ${theme.spacing.xl};
+    flex: 1;
+`;
+
+const MainContent = styled.div`
+    flex: 2;
+    background-color: ${theme.colors.card};
+    border-radius: ${theme.borderRadius.md};
+    padding: ${theme.spacing.lg};
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+`;
+
+const SideContent = styled.div`
+    flex: 1;
+    background-color: ${theme.colors.card};
+    border-radius: ${theme.borderRadius.md};
+    padding: ${theme.spacing.lg};
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const EventHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: ${theme.spacing.lg};
+    padding: ${theme.spacing.md};
+    background-color: ${theme.colors.card};
+    border-radius: ${theme.borderRadius.md};
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const EventInfo = styled.div`
+    flex: 1;
+    display: flex;
+    gap: ${theme.spacing.md};
+`;
+
+const EventInfoContent = styled.div`
+    flex: 1;
+`;
+
+const EventGraphic = styled.div`
+    width: 120px;
+    height: 120px;
+    border-radius: ${theme.borderRadius.sm};
+    overflow: hidden;
+    flex-shrink: 0;
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+`;
+
+const EventTitleHeader = styled.h1`
+    margin: 0;
+    font-size: ${theme.typography.fontSizes.xl};
+`;
+
+const EventDate = styled.div`
+    color: ${theme.colors.text.secondary};
+    font-size: ${theme.typography.fontSizes.md};
+    margin-bottom: ${theme.spacing.sm};
+`;
+
+const EventDescription = styled.div`
+    color: ${theme.colors.text.primary};
+    font-size: ${theme.typography.fontSizes.sm};
+    line-height: 1.5;
+    margin-top: ${theme.spacing.sm};
+    max-width: 600px;
+`;
+
+const EventActions = styled.div`
+    display: flex;
+    gap: ${theme.spacing.md};
+    align-items: center;
+`;
+
+const ActionButton = styled.button`
+    background-color: ${theme.colors.secondary};
+    color: ${theme.colors.text.white};
+    border: none;
+    border-radius: ${theme.borderRadius.md};
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    font-weight: ${theme.typography.fontWeights.semibold};
+    cursor: pointer;
+    transition: ${theme.transitions.default};
+
+    &:hover {
+        background-color: ${theme.colors.primaryDark};
+    }
+`;
+
+const Section = styled.div`
+    margin-bottom: ${theme.spacing.xl};
+    animation: fadeIn 0.3s ease-in-out;
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+
+const SectionTitle = styled.h3`
+    font-size: ${theme.typography.fontSizes.lg};
+    font-weight: ${theme.typography.fontWeights.semibold};
+    margin-top: 0;
+    margin-bottom: ${theme.spacing.md};
+    color: ${theme.colors.text.primary};
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing.sm};
+    padding-bottom: ${theme.spacing.sm};
+    border-bottom: 1px solid ${theme.colors.border};
+    
+    svg {
+        color: ${theme.colors.primary};
+    }
+`;
+
+const TabsContainer = styled.div`
+    display: flex;
+    border-bottom: 1px solid ${theme.colors.border};
+    margin-bottom: ${theme.spacing.lg};
+`;
+
+const PrimaryButton = styled(ActionButton)`
+    background-color: ${theme.colors.primary};
+    
+    &:hover {
+        background-color: ${theme.colors.primaryDark};
+    }
+`;
+
+const BackButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing.sm};
+    background: none;
+    border: none;
+    color: ${theme.colors.primary};
+    cursor: pointer;
+    font-size: ${theme.typography.fontSizes.sm};
+    margin-bottom: ${theme.spacing.sm};
+    padding: ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.sm};
+    transition: background-color 0.2s;
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        text-decoration: underline;
+    }
+`;
+
+const SongList = styled.ul`
+    list-style: none;
+    padding: 0;
+    margin: 0;
+`;
+
+const SongItem = styled.li`
+    margin-bottom: ${theme.spacing.sm};
+    background-color: ${theme.colors.highlight};
+    border-radius: ${theme.borderRadius.md};
+    overflow: hidden;
+    border: 1px solid ${theme.colors.border};
+`;
+
+const SongHeader = styled.div`
+    display: flex;
+    align-items: center;
+    padding: ${theme.spacing.md};
+    cursor: pointer;
+    position: relative;
+`;
+
+const SongArrow = styled.div<{ isExpanded: boolean }>`
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: ${theme.spacing.sm};
+    transition: transform 0.2s ease;
+    transform: ${(props: { isExpanded: boolean }) => props.isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};
+    color: ${theme.colors.primary};
+`;
+
+const SongTime = styled.div`
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+    display: flex;
+    align-items: center;
+    margin-right: ${theme.spacing.md};
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: ${theme.borderRadius.sm};
+`;
+
+const SongInfo = styled.div`
+    flex-grow: 1;
+`;
+
+const SongTitle = styled.h4`
+    margin: 0 0 ${theme.spacing.xs} 0;
+    font-size: ${theme.typography.fontSizes.md};
+`;
+
+const MenuButton = styled.button`
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: ${theme.spacing.sm};
+    color: ${theme.colors.text.secondary};
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+`;
+
+const VocalNotes = styled.div`
+    font-size: ${theme.typography.fontSizes.sm};
+    padding: 2px 8px;
+    background-color: ${theme.colors.primaryLight};
+    color: ${theme.colors.text.white};
+    border-radius: ${theme.borderRadius.sm};
+    margin-left: ${theme.spacing.md};
+`;
+
+const SongDetailsContainer = styled.div`
+    padding: ${theme.spacing.md};
+    border-top: 1px solid ${theme.colors.border};
+    background-color: ${theme.colors.card};
+`;
+
+const TabsRow = styled.div`
+    display: flex;
+    border-bottom: 1px solid ${theme.colors.border};
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const TabButton = styled.button<{ active: boolean }>`
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    background: none;
+    border: none;
+    border-bottom: 2px solid ${(props: { active: boolean }) => props.active ? theme.colors.primary : 'transparent'};
+    color: ${(props: { active: boolean }) => props.active ? theme.colors.primary : theme.colors.text.secondary};
+    font-weight: ${(props: { active: boolean }) => props.active ? theme.typography.fontWeights.semibold : theme.typography.fontWeights.normal};
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        color: ${theme.colors.primary};
+    }
+`;
+
+const TabContent = styled.div`
+    padding: ${theme.spacing.sm} 0;
+`;
+
+const InfoTabContainer = styled.div`
+    display: flex;
+    gap: ${theme.spacing.md};
+`;
+
+const AlbumCoverContainer = styled.div`
+    width: 140px;
+    height: 140px;
+    border-radius: ${theme.borderRadius.sm};
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+`;
+
+const AlbumCover = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const SongDetails = styled.div`
+    flex: 1;
+`;
+
+const InfoRow = styled.div`
+    display: flex;
+    margin-bottom: ${theme.spacing.xs};
+`;
+
+const InfoLabel = styled.div`
+    font-weight: ${theme.typography.fontWeights.semibold};
+    width: 120px;
+    flex-shrink: 0;
+    color: ${theme.colors.text.secondary};
+`;
+
+const InfoValue = styled.div`
+    flex: 1;
+`;
+
+const SongTitleLarge = styled.h3`
+    margin: 0 0 ${theme.spacing.xs} 0;
+    font-size: ${theme.typography.fontSizes.lg};
+    color: ${theme.colors.primary};
+`;
+
+const SongAuthor = styled.div`
+    font-size: ${theme.typography.fontSizes.md};
+    margin-bottom: ${theme.spacing.sm};
+    color: ${theme.colors.text.secondary};
+`;
+
+const ArrangementContainer = styled.div`
+    width: 100%;
+`;
+
+const ArrangementControls = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: ${theme.spacing.md};
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const ControlGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const ControlLabel = styled.label`
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+    margin-bottom: ${theme.spacing.xs};
+    font-weight: ${theme.typography.fontWeights.medium};
+`;
+
+const Select = styled.select`
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.sm};
+    border: 1px solid ${theme.colors.border};
+    background-color: ${theme.colors.background};
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.primary};
+    
+    &:focus {
+        outline: none;
+        border-color: ${theme.colors.primary};
+    }
+`;
+
+const Input = styled.input`
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.sm};
+    border: 1px solid ${theme.colors.border};
+    background-color: ${theme.colors.background};
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.primary};
+    
+    &:focus {
+        outline: none;
+        border-color: ${theme.colors.primary};
+    }
+`;
+
+const SectionTagsContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: ${theme.spacing.xs};
+    margin-bottom: ${theme.spacing.md};
+    padding: ${theme.spacing.sm};
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: ${theme.borderRadius.sm};
+    border: 1px solid ${theme.colors.border};
+`;
+
+const SectionTag = styled.div<{ type: string }>`
+    background-color: ${(props: { type: string }) => {
+        switch (props.type) {
+            case 'Intro': return 'rgba(52, 152, 219, 0.7)';
+            case 'Verse': return 'rgba(46, 204, 113, 0.7)';
+            case 'Chorus': return 'rgba(155, 89, 182, 0.7)';
+            case 'Bridge': return 'rgba(241, 196, 15, 0.7)';
+            case 'Outro': return 'rgba(231, 76, 60, 0.7)';
+            default: return 'rgba(149, 165, 166, 0.7)';
+        }
+    }};
+    color: white;
+    padding: 4px 8px;
+    border-radius: ${theme.borderRadius.sm};
+    font-size: ${theme.typography.fontSizes.xs};
+    font-weight: ${theme.typography.fontWeights.medium};
+`;
+
+const SongSectionContainer = styled.div`
+    margin-bottom: ${theme.spacing.sm};
+`;
+
+const SongSectionRow = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: ${theme.spacing.xs};
+`;
+
+const SectionBlock = styled.div<{ type: string }>`
+    background-color: ${(props: { type: string }) => {
+        switch (props.type) {
+            case 'Intro': return 'rgba(52, 152, 219, 0.7)';
+            case 'Verse': return 'rgba(46, 204, 113, 0.7)';
+            case 'Chorus': return 'rgba(155, 89, 182, 0.7)';
+            case 'Bridge': return 'rgba(241, 196, 15, 0.7)';
+            case 'Outro': return 'rgba(231, 76, 60, 0.7)';
+            default: return 'rgba(149, 165, 166, 0.7)';
+        }
+    }};
+    color: white;
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.sm};
+    font-weight: ${theme.typography.fontWeights.semibold};
+    margin-right: ${theme.spacing.sm};
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: center;
+`;
+
+const SectionDetails = styled.div`
+    flex: 1;
+    display: flex;
+    align-items: center;
+`;
+
+const SectionBars = styled.div`
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: ${theme.borderRadius.sm};
+    margin-right: ${theme.spacing.sm};
+`;
+
+const SectionNotes = styled.div`
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+    flex: 1;
+`;
+
+const SectionLabel = styled.div`
+    font-weight: ${theme.typography.fontWeights.semibold};
+    margin-bottom: ${theme.spacing.xs};
+`;
+
+const FilesContainer = styled.div`
+    width: 100%;
+`;
+
+const ViewToggleContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const ViewToggleButton = styled.button<{ active: boolean }>`
+    background-color: ${(props: { active: boolean }) => props.active ? theme.colors.primary : 'transparent'};
+    color: ${(props: { active: boolean }) => props.active ? 'white' : theme.colors.text.secondary};
+    border: 1px solid ${theme.colors.border};
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    cursor: pointer;
+    font-size: ${theme.typography.fontSizes.sm};
+    transition: all 0.2s;
+    
+    &:first-child {
+        border-top-left-radius: ${theme.borderRadius.sm};
+        border-bottom-left-radius: ${theme.borderRadius.sm};
+    }
+    
+    &:last-child {
+        border-top-right-radius: ${theme.borderRadius.sm};
+        border-bottom-right-radius: ${theme.borderRadius.sm};
+    }
+    
+    &:hover {
+        background-color: ${(props: { active: boolean }) => props.active ? theme.colors.primary : 'rgba(0, 0, 0, 0.05)'};
+    }
+`;
+
+const GridFilesList = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: ${theme.spacing.md};
+    margin-top: ${theme.spacing.sm};
+`;
+
+const TableFilesList = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: ${theme.spacing.sm};
+`;
+
+const TableHeader = styled.th`
+    text-align: left;
+    padding: ${theme.spacing.sm};
+    background-color: rgba(0, 0, 0, 0.02);
+    font-weight: ${theme.typography.fontWeights.medium};
+    color: ${theme.colors.text.secondary};
+    font-size: ${theme.typography.fontSizes.sm};
+    border-bottom: 1px solid ${theme.colors.border};
+`;
+
+const TableCell = styled.td`
+    padding: ${theme.spacing.sm};
+    border-bottom: 1px solid ${theme.colors.border};
+    vertical-align: middle;
+    font-size: ${theme.typography.fontSizes.sm};
+`;
+
+const TableIconCell = styled(TableCell)`
+    width: 50px;
+    text-align: center;
+`;
+
+const TableRow = styled.tr`
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+`;
+
+const FileCard = styled.div`
+    background-color: ${theme.colors.card};
+    border: 1px solid ${theme.colors.border};
+    border-radius: ${theme.borderRadius.sm};
+    padding: ${theme.spacing.sm};
+    transition: all 0.2s;
+    
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+`;
+
+const FileIconContainer = styled.div`
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: ${theme.borderRadius.sm};
+    margin-bottom: ${theme.spacing.sm};
+    position: relative;
+    overflow: hidden;
+`;
+
+const FileIcon = styled.div<{ type: string }>`
+    width: 50px;
+    height: 60px;
+    background-color: ${(props: { type: string }) => {
+        switch (props.type) {
+            case 'pdf': return '#FF5722';
+            case 'doc': return '#2196F3';
+            case 'image': return '#4CAF50';
+            case 'audio': return '#9C27B0';
+            case 'video': return '#F44336';
+            case 'zip': return '#795548';
+            default: return '#607D8B';
+        }
+    }};
+    border-radius: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: ${theme.typography.fontWeights.bold};
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-width: 12px;
+        border-style: solid;
+        border-color: white white transparent transparent;
+    }
+`;
+
+const FileInfo = styled.div`
+    text-align: center;
+`;
+
+const FileName = styled.div`
+    font-weight: ${theme.typography.fontWeights.medium};
+    font-size: ${theme.typography.fontSizes.sm};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+`;
+
+const FileSize = styled.div`
+    font-size: ${theme.typography.fontSizes.xs};
+    color: ${theme.colors.text.secondary};
+`;
+
+const FileActions = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: ${theme.spacing.xs};
+`;
+
+const ImprovedBackButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing.sm};
+    background-color: ${theme.colors.background};
+    border: 1px solid ${theme.colors.border};
+    color: ${theme.colors.text.primary};
+    font-size: ${theme.typography.fontSizes.sm};
+    font-weight: ${theme.typography.fontWeights.medium};
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    cursor: pointer;
+    border-radius: ${theme.borderRadius.sm};
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    margin-bottom: ${theme.spacing.md};
+    
+    &:hover {
+        background-color: ${theme.colors.highlight};
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+`;
+
+const FileButton = styled.button`
+    background: none;
+    border: none;
+    color: ${theme.colors.primary};
+    font-size: ${theme.typography.fontSizes.xs};
+    padding: ${theme.spacing.xs} ${theme.spacing.sm};
+    cursor: pointer;
+    border-radius: ${theme.borderRadius.sm};
+    transition: background-color 0.2s;
+    
+    &:hover {
+        background-color: rgba(0, 120, 255, 0.1);
+    }
+`;
+
+// Note styled components
+const NotesContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${theme.spacing.md};
+`;
+
+const NoteTypesBar = styled.div`
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: ${theme.spacing.xs};
+    margin-bottom: ${theme.spacing.sm};
+    overflow-x: auto;
+    padding-bottom: ${theme.spacing.xs};
+    
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: ${theme.colors.border};
+        border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: ${theme.colors.primary};
+        border-radius: 10px;
+    }
+`;
+
+const NoteTypeButton = styled.button<{ active?: boolean; noteType: string }>`
+    padding: ${theme.spacing.xs} ${theme.spacing.md};
+    border-radius: 20px; /* Using a pixel value instead of theme.borderRadius.pill */
+    font-size: ${theme.typography.fontSizes.sm};
+    background-color: ${(props: { active?: boolean; noteType: string }) => {
+        if (props.active) {
+            switch(props.noteType) {
+                case 'vocals': return '#6366F1';
+                case 'production': return '#F59E0B';
+                case 'band': return '#10B981';
+                case 'lighting': return '#EC4899';
+                case 'audio': return '#8B5CF6';
+                case 'general': return '#3B82F6';
+                default: return theme.colors.primary;
+            }
+        }
+        return 'rgba(0, 0, 0, 0.05)';
+    }};
+    color: ${(props: { active?: boolean }) => props.active ? 'white' : theme.colors.text.secondary};
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: ${(props: { active?: boolean }) => props.active ? theme.typography.fontWeights.medium : theme.typography.fontWeights.medium};
+    transition: all 0.2s;
+    
+    &:hover {
+        background-color: ${(props: { active?: boolean }) => {
+            if (!props.active) {
+                return 'rgba(0, 0, 0, 0.08)';
+            }
+            return undefined; // Keep the active color
+        }};
+    }
+`;
+
+const NoteSection = styled.div<{ noteType: string }>`
+    margin-bottom: ${theme.spacing.md};
+    border-radius: ${theme.borderRadius.sm};
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid ${(props: { noteType: string }) => {
+        switch(props.noteType) {
+            case 'vocals': return '#6366F1';
+            case 'production': return '#F59E0B';
+            case 'band': return '#10B981';
+            case 'lighting': return '#EC4899';
+            case 'audio': return '#8B5CF6';
+            case 'general': return '#3B82F6';
+            default: return theme.colors.primary;
+        }
+    }};
+    background-color: ${theme.colors.card};
+`;
+
+const NoteSectionHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom: 1px solid ${theme.colors.border};
+`;
+
+const NoteSectionTitle = styled.h4<{ noteType: string }>`
+    margin: 0;
+    font-size: ${theme.typography.fontSizes.md};
+    font-weight: ${theme.typography.fontWeights.medium};
+    color: ${(props: { noteType: string }) => {
+        switch(props.noteType) {
+            case 'vocals': return '#4338CA';
+            case 'production': return '#D97706';
+            case 'band': return '#059669';
+            case 'lighting': return '#DB2777';
+            case 'audio': return '#7C3AED';
+            case 'general': return '#2563EB';
+            default: return theme.colors.text.primary;
+        }
+    }};
+    display: flex;
+    align-items: center;
+    gap: ${theme.spacing.xs};
+    
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: ${(props: { noteType: string }) => {
+            switch(props.noteType) {
+                case 'vocals': return '#6366F1';
+                case 'production': return '#F59E0B';
+                case 'band': return '#10B981';
+                case 'lighting': return '#EC4899';
+                case 'audio': return '#8B5CF6';
+                case 'general': return '#3B82F6';
+                default: return theme.colors.primary;
+            }
+        }};
+    }
+`;
+
+const NoteSectionActions = styled.div`
+    display: flex;
+    gap: ${theme.spacing.sm};
+`;
+
+const NoteItem = styled.div`
+    padding: ${theme.spacing.md};
+    border-bottom: 1px solid ${theme.colors.border};
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    
+    &:last-child {
+        border-bottom: none;
+    }
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.01);
+    }
+`;
+
+const NoteContent = styled.div`
+    flex: 1;
+    
+    p {
+        margin: 0 0 ${theme.spacing.xs} 0;
+        font-size: ${theme.typography.fontSizes.sm};
+        color: ${theme.colors.text.primary};
+        line-height: 1.5;
+        
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+`;
+
+const NoteActions = styled.div`
+    display: flex;
+    gap: ${theme.spacing.sm};
+    align-items: center;
+`;
+
+const NoteActionButton = styled.button`
+    background: none;
+    border: none;
+    color: ${theme.colors.text.secondary};
+    padding: ${theme.spacing.xs};
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: ${theme.colors.text.primary};
+    }
+`;
+
+const AddNoteForm = styled.div`
+    background-color: ${theme.colors.card};
+    border-radius: ${theme.borderRadius.sm};
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: ${theme.spacing.md};
+    margin-top: ${theme.spacing.md};
+`;
+
+// SVG Icons
+const EditIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
+const DeleteIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+)
+
+const SongArtist = styled.p`
+    margin: 0;
+    font-size: ${theme.typography.fontSizes.sm};
+    color: ${theme.colors.text.secondary};
+`;
+
+const SongActions = styled.div`
+    display: flex;
+    gap: ${theme.spacing.sm};
+`;
+
+const TeamSection = styled.div`
+    margin-top: ${theme.spacing.lg};
+`;
+
+const DepartmentItem = styled.div`
+    margin-bottom: ${theme.spacing.md};
+`;
+
+const DepartmentTitle = styled.h4`
+    margin: 0 0 ${theme.spacing.sm} 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const PositionItem = styled.div`
+    margin-left: ${theme.spacing.lg};
+    margin-bottom: ${theme.spacing.sm};
+`;
+
+const PositionTitle = styled.h5`
+    margin: 0 0 ${theme.spacing.xs} 0;
+    font-weight: ${theme.typography.fontWeights.medium};
+`;
+
+const TeamMemberList = styled.ul`
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 ${theme.spacing.xl};
+`;
+
+const TeamMember = styled.li`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: ${theme.spacing.sm};
+    border-radius: ${theme.borderRadius.md};
+    background-color: ${theme.colors.highlight};
+    margin-bottom: ${theme.spacing.xs};
+`;
+
+const ScheduleEmptyState = styled.div`
+    text-align: center;
+    padding: ${theme.spacing.xl};
+    background-color: ${theme.colors.highlight};
+    border-radius: ${theme.borderRadius.md};
+    color: ${theme.colors.text.secondary};
+`;
+
+// Mock song data
+const mockSongList = [
+    { id: 1, title: 'Way Maker', artist: 'Leeland', key: 'G', bpm: 74 },
+    { id: 2, title: 'Great Are You Lord', artist: 'All Sons & Daughters', key: 'D', bpm: 72 },
+    { id: 3, title: 'Holy Spirit', artist: 'Jesus Culture', key: 'A', bpm: 73 },
+    { id: 4, title: 'What A Beautiful Name', artist: 'Hillsong Worship', key: 'D', bpm: 68 }
+];
+
+// Mock team and department data
+const mockTeams = [
+    {
+        id: 1,
+        name: 'Worship',
+        departments: [
+            {
+                id: 1,
+                name: 'Vocals',
+                positions: [
+                    {
+                        id: 1,
+                        name: 'Worship Leader',
+                        members: [{ id: 1, name: 'John Doe', status: 'confirmed' }]
+                    },
+                    {
+                        id: 2,
+                        name: 'Backing Vocals',
+                        members: [
+                            { id: 2, name: 'Jane Smith', status: 'confirmed' },
+                            { id: 3, name: 'Ashley Johnson', status: 'pending' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Instruments',
+                positions: [
+                    {
+                        id: 3,
+                        name: 'Keys',
+                        members: [{ id: 4, name: 'Michael Brown', status: 'confirmed' }]
+                    },
+                    {
+                        id: 4,
+                        name: 'Guitar',
+                        members: [{ id: 5, name: 'Chris Wilson', status: 'confirmed' }]
+                    },
+                    {
+                        id: 5,
+                        name: 'Drums',
+                        members: [{ id: 6, name: 'David Miller', status: 'confirmed' }]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        id: 2,
+        name: 'Production',
+        departments: [
+            {
+                id: 3,
+                name: 'Audio',
+                positions: [
+                    {
+                        id: 6,
+                        name: 'Front of House',
+                        members: [{ id: 7, name: 'Robert Lee', status: 'confirmed' }]
+                    },
+                    {
+                        id: 7,
+                        name: 'Monitors',
+                        members: [{ id: 8, name: 'Sarah Davis', status: 'pending' }]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                name: 'Visual',
+                positions: [
+                    {
+                        id: 8,
+                        name: 'ProPresenter',
+                        members: [{ id: 9, name: 'Michelle Thompson', status: 'confirmed' }]
+                    },
+                    {
+                        id: 9,
+                        name: 'Lighting',
+                        members: [{ id: 10, name: 'James Rodriguez', status: 'pending' }]
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+// Mock time data
+const mockTimes = {
+    worship: [
+        { id: 1, day: 'Sunday', start_time: '9:00 AM', end_time: '10:15 AM' },
+        { id: 2, day: 'Sunday', start_time: '11:00 AM', end_time: '12:15 PM' }
+    ],
+    rehearsal: [
+        { id: 3, day: 'Saturday', start_time: '6:00 PM', end_time: '8:00 PM' }
+    ],
+    other: [
+        { id: 4, type: 'Setup', day: 'Sunday', time: '7:30 AM' }
+    ]
+};
+
+// Enum for sidebar tabs
+// Using the imported SidebarTab as EventSidebarTab
+
+// Tab content components for the sidebar
+const TimeTab: React.FC = () => (
+    <div>
+        <div>
+            <h5>Worship Times</h5>
+            <ul>
+                {mockTimes.worship.map(time => (
+                    <li key={time.id}>
+                        {time.day} at {time.start_time} - {time.end_time}
+                    </li>
+                ))}
+            </ul>
+        </div>
+        <div>
+            <h5>Rehearsal Times</h5>
+            <ul>
+                {mockTimes.rehearsal.map(time => (
+                    <li key={time.id}>
+                        {time.day} at {time.start_time} - {time.end_time}
+                    </li>
+                ))}
+            </ul>
+        </div>
+        <div>
+            <h5>Other Times</h5>
+            <ul>
+                {mockTimes.other.map(time => (
+                    <li key={time.id}>
+                        {time.type}: {time.day} at {time.time}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </div>
+);
+
+const SongTab: React.FC = () => (
+    <div>
+        <ul>
+            {mockSongList.map(song => (
+                <li key={song.id}>
+                    {song.title} - {song.artist} (Key: {song.key}, BPM: {song.bpm})
+                </li>
+            ))}
+        </ul>
+    </div>
+);
+
+const PeopleTab: React.FC = () => (
+    <div>
+        {mockTeams.map(team => (
+            <div key={team.id}>
+                <h5>{team.name}</h5>
+                {team.departments.map(dept => (
+                    <div key={dept.id} style={{ marginLeft: '16px', marginBottom: '16px' }}>
+                        <h6>{dept.name}</h6>
+                        {dept.positions.map(position => (
+                            <div key={position.id} style={{ marginLeft: '16px', marginBottom: '8px' }}>
+                                <p style={{ fontWeight: 'bold', margin: '4px 0' }}>{position.name}:</p>
+                                <ul style={{ marginTop: '4px' }}>
+                                    {position.members.map(member => (
+                                        <li key={member.id}>
+                                            {member.name} 
+                                            {member.status === 'pending' && 
+                                                <span style={{ color: 'orange', marginLeft: '8px' }}>(Pending)</span>
+                                            }
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        ))}
+    </div>
+);
+
+// Type for tracking expanded songs and active tabs
+interface SongExpandStateData {
+    expanded: boolean;
+    activeTab: 'info' | 'arrangement' | 'files' | 'notes';
+    filesView?: 'grid' | 'table';
+    addingNoteType?: string;
+    activeNoteType?: string;
+    notesByType: { [key: string]: any[] };
+}
+
+type SongExpandState = { [songId: number]: SongExpandStateData };
+
+const EventDetailView: React.FC = () => {
+    // Use both useParams and useLocation to ensure we can extract parameters
+    const params = useParams<{ seriesId: string, eventId: string }>();
+    const location = useLocation();
+    const navigate = useNavigate();
+    
+    // Make sure the first submenu icon is highlighted
+    useEffect(() => {
+        // Approach 1: Direct DOM manipulation - find and select the first submenu item
+        setTimeout(() => {
+            // We use setTimeout to ensure the DOM has been fully rendered
+            const submenuItems = document.querySelectorAll('.submenu-item');
+            if (submenuItems && submenuItems.length > 0) {
+                // Remove 'active' class from all submenu items
+                submenuItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add 'active' class to the first submenu item (index 0)
+                if (submenuItems[0]) {
+                    submenuItems[0].classList.add('active');
+                    console.log('Set first submenu item active');
+                }
+            }
+        }, 100);
+        
+        // Approach 2: Custom event - some applications use event-based communication
+        // Dispatch custom event to notify the parent application
+        const event = new CustomEvent('submenu-change', { 
+            detail: { activeItem: 'scheduler', mainSection: 'scheduler' } 
+        });
+        window.dispatchEvent(event);
+        console.log('Dispatched submenu-change event');
+        
+        return () => {
+            // Cleanup if needed
+        };
+    }, []);
+    
+    // Extract parameters from URL if not available through useParams
+    const getParamsFromPath = (): { seriesId: string, eventId: string } => {
+        const path = location.pathname;
+        console.log('Path in EventDetailView:', path);
+        
+        // Extract seriesId and eventId from path
+        const eventsMatch = path.match(/\/events\/([\d]+)\/([\d]+)/);
+        if (eventsMatch && eventsMatch.length >= 3) {
+            return { seriesId: eventsMatch[1], eventId: eventsMatch[2] };
+        }
+        
+        // If not found in path, use params or defaults
+        return {
+            seriesId: params.seriesId || '0',
+            eventId: params.eventId || '0'
+        };
+    };
+    
+    const { seriesId, eventId } = getParamsFromPath();
+    const [event, setEvent] = useState<SeriesEvent | null>(null);
+    const [series, setSeries] = useState<Series | null>(null);
+    const [activeTab, setActiveTab] = useState<EventSidebarTab>(EventSidebarTab.TIME);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    // State for tracking which songs are expanded and their active tabs
+    const [songExpandState, setSongExpandState] = useState<SongExpandState>({});
+    
+    // Mock songs data for demo
+    const mockSongList = [
+        { id: 1, title: 'Amazing Grace', artist: 'John Newton', key: 'G', bpm: 68 },
+        { id: 2, title: 'How Great Is Our God', artist: 'Chris Tomlin', key: 'C', bpm: 78 },
+        { id: 3, title: 'Cornerstone', artist: 'Hillsong', key: 'D', bpm: 72 },
+        { id: 4, title: 'Good Good Father', artist: 'Chris Tomlin', key: 'A', bpm: 70 }
+    ];
+    
+    // Initialize the songExpandState with mock data - only run once on component mount
+    useEffect(() => {
+        if (mockSongList.length > 0) {
+            const initialState: SongExpandState = {};
+            mockSongList.forEach((song) => {
+                initialState[song.id] = {
+                    expanded: false,
+                    activeTab: 'info',
+                    activeNoteType: 'vocals',
+                    notesByType: {
+                        vocals: [
+                            { id: 1, content: `Lead Vocal: ${['John', 'Sarah', 'Mike', 'Lisa'][song.id % 4]}\nBacking Vocals: ${['Alex & Emma', 'David & Rachel', 'Sam & Taylor'][song.id % 3]}` }
+                        ],
+                        production: [
+                            { id: 1, content: 'Pay special attention to the dynamics in the bridge section. Start soft and build to full volume by the last chorus.' }
+                        ],
+                        band: [
+                            { id: 1, content: 'Lead vocalist will cue the band for the transition from bridge to chorus.' }
+                        ],
+                        lighting: [
+                            { id: 1, content: 'Keep lighting subdued during verses, then brighten for chorus sections.' }
+                        ],
+                        audio: [
+                            { id: 1, content: 'Bass should be slightly boosted for this song. Vocals need extra reverb during the bridge.' }
+                        ],
+                        general: [
+                            { id: 1, content: 'Remember to have water bottles on stage for all performers.' }
+                        ]
+                    }
+                };
+            });
+            setSongExpandState(initialState);
+        }
+    }, []); // Empty dependency array to ensure this only runs once on mount
+
+    useEffect(() => {
+        console.log('Loading event data for seriesId:', seriesId, 'eventId:', eventId);
+        // In a real implementation, this would fetch data from an API
+        const numSeriesId = parseInt(seriesId, 10);
+        const numEventId = parseInt(eventId, 10);
+        
+        // Find the event
+        const foundEvent = mockEvents.find(e => e.id === numEventId && e.series_id === numSeriesId);
+        
+        // Find the associated series
+        const foundSeries = [...mockSeries, ...mockSpecialSeries].find(s => s.id === numSeriesId);
+        
+        if (foundEvent) {
+            setEvent(foundEvent);
+        }
+        
+        if (foundSeries) {
+            setSeries(foundSeries);
+        }
+        
+        setIsLoading(false);
+    }, [seriesId, eventId]);
+
+    const handleBack = () => {
+        navigate(`/scheduler-new/series/${seriesId}`);
+    };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!event || !series) {
+        return <div>Event not found</div>;
+    }
+
+    // We're now using the EventSideTabs component instead
+    // This renderTabContent function is no longer needed
+
+    return (
+        <DetailContainer>
+            <ImprovedBackButton onClick={() => navigate(`/scheduler-new/series/${seriesId}`)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Series
+            </ImprovedBackButton>
+            
+            <EventHeader>
+                <EventInfo>
+                    <EventGraphic>
+                        <img 
+                            src={`https://via.placeholder.com/500x500/4a90e2/ffffff?text=${encodeURIComponent(event.event_name.slice(0, 1))}`} 
+                            alt={`${event.event_name} graphic`} 
+                        />
+                    </EventGraphic>
+                    <EventInfoContent>
+                        <EventTitleHeader>{event.event_name}</EventTitleHeader>
+                        <EventDate>{event.event_date} ({event.event_day})</EventDate>
+                        <EventDescription>
+                            {`Join us for our ${event.event_name} service. This special event will feature worship, prayer, and a message from our pastor. Everyone is welcome to attend and participate in this gathering.`}
+                        </EventDescription>
+                    </EventInfoContent>
+                </EventInfo>
+                <EventActions>
+                    <ActionButton onClick={() => console.log('Edit event')}>
+                        Edit Event
+                    </ActionButton>
+                </EventActions>
+            </EventHeader>
+
+            <ContentLayout>
+                <MainContent>
+                    <Section>
+                        <SectionTitle>Songs</SectionTitle>
+                        {mockSongList.length === 0 ? (
+                            <ScheduleEmptyState>
+                                No songs added yet. Add songs to get started.
+                            </ScheduleEmptyState>
+                        ) : (
+                            <SongList>
+                                {mockSongList.map(song => {
+                                    // Use default values if state doesn't exist for this song
+                                    // This avoids setting state during render which causes infinite update
+                                    const songState = songExpandState[song.id] || { expanded: false, activeTab: 'info' };
+                                    const isExpanded = songState.expanded || false;
+                                    const currentTab = songState.activeTab || 'info';
+                                    
+                                    const toggleExpand = () => {
+                                        const newState = {...songExpandState};
+                                        newState[song.id] = { 
+                                            ...newState[song.id],
+                                            expanded: !isExpanded 
+                                        };
+                                        setSongExpandState(newState);
+                                    };
+                                    
+                                    const setTabForSong = (tab: 'info' | 'arrangement' | 'files' | 'notes') => {
+                                        const newState = {...songExpandState};
+                                        newState[song.id] = { 
+                                            ...newState[song.id],
+                                            activeTab: tab
+                                        };
+                                        setSongExpandState(newState);
+                                    };
+                                    
+                                    return (
+                                        <SongItem key={song.id}>
+                                            <SongHeader onClick={toggleExpand}>
+                                                <SongArrow isExpanded={isExpanded}>
+                                                    ▶
+                                                </SongArrow>
+                                                <SongTime>
+                                                    {`${8 + (song.id % 4)}:${song.id * 10 % 60 < 10 ? '0' : ''}${song.id * 10 % 60}`} • {song.id % 3 + 2}min
+                                                </SongTime>
+                                                <SongInfo>
+                                                    <SongTitle>{song.title}</SongTitle>
+                                                    <SongArtist>{song.artist} | Key: {song.key} | BPM: {song.bpm}</SongArtist>
+                                                </SongInfo>
+                                                <VocalNotes>
+                                                    Lead: {['John', 'Sarah', 'Mike', 'Lisa'][song.id % 4]}
+                                                </VocalNotes>
+                                                <MenuButton>
+                                                    •••
+                                                </MenuButton>
+                                            </SongHeader>
+                                            
+                                            {isExpanded && (
+                                                <SongDetailsContainer>
+                                                    <TabsRow>
+                                                        <TabButton 
+                                                            active={currentTab === 'info'}
+                                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setTabForSong('info'); }}
+                                                        >
+                                                            Info
+                                                        </TabButton>
+                                                        <TabButton 
+                                                            active={currentTab === 'arrangement'}
+                                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setTabForSong('arrangement'); }}
+                                                        >
+                                                            Arrangement
+                                                        </TabButton>
+                                                        <TabButton 
+                                                            active={currentTab === 'files'}
+                                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setTabForSong('files'); }}
+                                                        >
+                                                            Files
+                                                        </TabButton>
+                                                        <TabButton 
+                                                            active={currentTab === 'notes'}
+                                                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setTabForSong('notes'); }}
+                                                        >
+                                                            Notes
+                                                        </TabButton>
+                                                    </TabsRow>
+                                                    
+                                                    <TabContent>
+                                                        {currentTab === 'info' && (
+                                                            <InfoTabContainer>
+                                                                <AlbumCoverContainer>
+                                                                    <AlbumCover 
+                                                                        src={`https://picsum.photos/seed/${song.title.replace(/\s+/g, '-').toLowerCase()}/300/300`} 
+                                                                        alt={`${song.title} album cover`} 
+                                                                    />
+                                                                </AlbumCoverContainer>
+                                                                <SongDetails>
+                                                                    <SongTitleLarge>{song.title}</SongTitleLarge>
+                                                                    <SongAuthor>{song.artist}</SongAuthor>
+                                                                    
+                                                                    <InfoRow>
+                                                                        <InfoLabel>CCLI #:</InfoLabel>
+                                                                        <InfoValue>{100000 + song.id * 123}</InfoValue>
+                                                                    </InfoRow>
+                                                                </SongDetails>
+                                                            </InfoTabContainer>
+                                                        )}
+                                                        
+                                                        {currentTab === 'arrangement' && (
+                                                            <ArrangementContainer>
+                                                                <ArrangementControls>
+                                                                    <ControlGroup>
+                                                                        <ControlLabel>Arrangement</ControlLabel>
+                                                                        <Select>
+                                                                            <option value="standard">Standard</option>
+                                                                            <option value="extended">Extended</option>
+                                                                            <option value="shortened">Shortened</option>
+                                                                            <option value="acoustic">Acoustic</option>
+                                                                            <option value="custom">Custom</option>
+                                                                        </Select>
+                                                                    </ControlGroup>
+                                                                    
+                                                                    <ControlGroup>
+                                                                        <ControlLabel>Key</ControlLabel>
+                                                                        <Select defaultValue={song.key}>
+                                                                            <option value="A">A</option>
+                                                                            <option value="A#">A#/Bb</option>
+                                                                            <option value="B">B</option>
+                                                                            <option value="C">C</option>
+                                                                            <option value="C#">C#/Db</option>
+                                                                            <option value="D">D</option>
+                                                                            <option value="D#">D#/Eb</option>
+                                                                            <option value="E">E</option>
+                                                                            <option value="F">F</option>
+                                                                            <option value="F#">F#/Gb</option>
+                                                                            <option value="G">G</option>
+                                                                            <option value="G#">G#/Ab</option>
+                                                                        </Select>
+                                                                    </ControlGroup>
+                                                                    
+                                                                    <ControlGroup>
+                                                                        <ControlLabel>Length</ControlLabel>
+                                                                        <Input type="text" defaultValue={`${song.id % 3 + 2}:30`} placeholder="0:00" />
+                                                                    </ControlGroup>
+                                                                </ArrangementControls>
+                                                                
+                                                                <SectionLabel>Song Sections</SectionLabel>
+                                                                
+                                                                <SectionTagsContainer>
+                                                                    <SectionTag type="Intro">Intro</SectionTag>
+                                                                    <SectionTag type="Verse">Verse 1</SectionTag>
+                                                                    <SectionTag type="Chorus">Chorus</SectionTag>
+                                                                    <SectionTag type="Verse">Verse 2</SectionTag>
+                                                                    <SectionTag type="Chorus">Chorus</SectionTag>
+                                                                    <SectionTag type="Bridge">Bridge</SectionTag>
+                                                                    <SectionTag type="Bridge">Bridge</SectionTag>
+                                                                    <SectionTag type="Chorus">Chorus</SectionTag>
+                                                                    <SectionTag type="Outro">Outro</SectionTag>
+                                                                </SectionTagsContainer>
+                                                            </ArrangementContainer>
+                                                        )}
+                                                        
+                                                        {currentTab === 'files' && (
+                                                            <FilesContainer>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                    <SectionLabel>Attached Files</SectionLabel>
+                                                                    <ViewToggleContainer>
+                                                                        <ViewToggleButton 
+                                                                            active={songExpandState[song.id]?.filesView !== 'table'}
+                                                                            onClick={() => {
+                                                                                const newState = {...songExpandState};
+                                                                                newState[song.id] = { 
+                                                                                    ...newState[song.id],
+                                                                                    filesView: 'grid'
+                                                                                };
+                                                                                setSongExpandState(newState);
+                                                                            }}
+                                                                        >
+                                                                            Grid
+                                                                        </ViewToggleButton>
+                                                                        <ViewToggleButton 
+                                                                            active={songExpandState[song.id]?.filesView === 'table'}
+                                                                            onClick={() => {
+                                                                                const newState = {...songExpandState};
+                                                                                newState[song.id] = { 
+                                                                                    ...newState[song.id],
+                                                                                    filesView: 'table'
+                                                                                };
+                                                                                setSongExpandState(newState);
+                                                                            }}
+                                                                        >
+                                                                            Table
+                                                                        </ViewToggleButton>
+                                                                    </ViewToggleContainer>
+                                                                </div>
+                                                                
+                                                                {(songExpandState[song.id]?.filesView !== 'table') ? (
+                                                                    <GridFilesList>
+                                                                    <FileCard>
+                                                                        <FileIconContainer>
+                                                                            <FileIcon type="pdf">PDF</FileIcon>
+                                                                        </FileIconContainer>
+                                                                        <FileInfo>
+                                                                            <FileName>{song.title} - Chord Chart.pdf</FileName>
+                                                                            <FileSize>428 KB</FileSize>
+                                                                        </FileInfo>
+                                                                        <FileActions>
+                                                                            <FileButton>Download</FileButton>
+                                                                            <FileButton>Preview</FileButton>
+                                                                        </FileActions>
+                                                                    </FileCard>
+                                                                    
+                                                                    <FileCard>
+                                                                        <FileIconContainer>
+                                                                            <FileIcon type="pdf">PDF</FileIcon>
+                                                                        </FileIconContainer>
+                                                                        <FileInfo>
+                                                                            <FileName>{song.title} - Lead Sheet.pdf</FileName>
+                                                                            <FileSize>512 KB</FileSize>
+                                                                        </FileInfo>
+                                                                        <FileActions>
+                                                                            <FileButton>Download</FileButton>
+                                                                            <FileButton>Preview</FileButton>
+                                                                        </FileActions>
+                                                                    </FileCard>
+                                                                    
+                                                                    <FileCard>
+                                                                        <FileIconContainer>
+                                                                            <FileIcon type="audio">MP3</FileIcon>
+                                                                        </FileIconContainer>
+                                                                        <FileInfo>
+                                                                            <FileName>{song.title} - Demo.mp3</FileName>
+                                                                            <FileSize>3.2 MB</FileSize>
+                                                                        </FileInfo>
+                                                                        <FileActions>
+                                                                            <FileButton>Download</FileButton>
+                                                                            <FileButton>Play</FileButton>
+                                                                        </FileActions>
+                                                                    </FileCard>
+                                                                    
+                                                                    <FileCard>
+                                                                        <FileIconContainer>
+                                                                            <FileIcon type="zip">ZIP</FileIcon>
+                                                                        </FileIconContainer>
+                                                                        <FileInfo>
+                                                                            <FileName>{song.title} - Stems.zip</FileName>
+                                                                            <FileSize>24.7 MB</FileSize>
+                                                                        </FileInfo>
+                                                                        <FileActions>
+                                                                            <FileButton>Download</FileButton>
+                                                                        </FileActions>
+                                                                    </FileCard>
+                                                                    </GridFilesList>
+                                                                ) : (
+                                                                    <TableFilesList>
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <TableHeader style={{ width: '50px' }}></TableHeader>
+                                                                                <TableHeader>Name</TableHeader>
+                                                                                <TableHeader>Size</TableHeader>
+                                                                                <TableHeader>Type</TableHeader>
+                                                                                <TableHeader>Actions</TableHeader>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <TableRow>
+                                                                                <TableIconCell>
+                                                                                    <FileIcon type="pdf" style={{ width: '30px', height: '35px', margin: '0 auto', fontSize: '12px' }}>PDF</FileIcon>
+                                                                                </TableIconCell>
+                                                                                <TableCell>{song.title} - Chord Chart.pdf</TableCell>
+                                                                                <TableCell>428 KB</TableCell>
+                                                                                <TableCell>PDF Document</TableCell>
+                                                                                <TableCell>
+                                                                                    <FileButton>Download</FileButton>
+                                                                                    <FileButton>Preview</FileButton>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                            <TableRow>
+                                                                                <TableIconCell>
+                                                                                    <FileIcon type="pdf" style={{ width: '30px', height: '35px', margin: '0 auto', fontSize: '12px' }}>PDF</FileIcon>
+                                                                                </TableIconCell>
+                                                                                <TableCell>{song.title} - Lead Sheet.pdf</TableCell>
+                                                                                <TableCell>512 KB</TableCell>
+                                                                                <TableCell>PDF Document</TableCell>
+                                                                                <TableCell>
+                                                                                    <FileButton>Download</FileButton>
+                                                                                    <FileButton>Preview</FileButton>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                            <TableRow>
+                                                                                <TableIconCell>
+                                                                                    <FileIcon type="audio" style={{ width: '30px', height: '35px', margin: '0 auto', fontSize: '12px' }}>MP3</FileIcon>
+                                                                                </TableIconCell>
+                                                                                <TableCell>{song.title} - Demo.mp3</TableCell>
+                                                                                <TableCell>3.2 MB</TableCell>
+                                                                                <TableCell>Audio</TableCell>
+                                                                                <TableCell>
+                                                                                    <FileButton>Download</FileButton>
+                                                                                    <FileButton>Play</FileButton>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                            <TableRow>
+                                                                                <TableIconCell>
+                                                                                    <FileIcon type="zip" style={{ width: '30px', height: '35px', margin: '0 auto', fontSize: '12px' }}>ZIP</FileIcon>
+                                                                                </TableIconCell>
+                                                                                <TableCell>{song.title} - Stems.zip</TableCell>
+                                                                                <TableCell>24.7 MB</TableCell>
+                                                                                <TableCell>Archive</TableCell>
+                                                                                <TableCell>
+                                                                                    <FileButton>Download</FileButton>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                        </tbody>
+                                                                    </TableFilesList>
+                                                                )}
+                                                            </FilesContainer>
+                                                        )}
+                                                        
+                                                        {currentTab === 'notes' && (
+                                                            <NotesContainer>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.md }}>
+                                                                    <SectionLabel>Song Notes</SectionLabel>
+                                                                </div>
+                                                                
+                                                                <NoteTypesBar>
+                                                                    <NoteTypeButton 
+                                                                        noteType="vocals" 
+                                                                        active={songExpandState[song.id]?.activeNoteType === 'vocals'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'vocals'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >Vocals</NoteTypeButton>
+                                                                    <NoteTypeButton 
+                                                                        noteType="production" 
+                                                                        active={songExpandState[song.id]?.activeNoteType === 'production'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'production'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >Production</NoteTypeButton>
+                                                                    <NoteTypeButton 
+                                                                        noteType="band" 
+                                                                        active={songExpandState[song.id]?.activeNoteType === 'band'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'band'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >Band</NoteTypeButton>
+                                                                    <NoteTypeButton 
+                                                                        noteType="lighting" 
+                                                                        active={songExpandState[song.id]?.activeNoteType === 'lighting'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'lighting'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >Lighting</NoteTypeButton>
+                                                                    <NoteTypeButton 
+                                                                        noteType="audio" 
+                                                                        active={songExpandState[song.id]?.activeNoteType === 'audio'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'audio'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >Audio</NoteTypeButton>
+                                                                    <NoteTypeButton 
+                                                                        noteType="general" 
+                                                                        active={!songExpandState[song.id]?.activeNoteType || songExpandState[song.id]?.activeNoteType === 'general'}
+                                                                        onClick={() => {
+                                                                            const newState = {...songExpandState};
+                                                                            newState[song.id] = { 
+                                                                                ...newState[song.id],
+                                                                                activeNoteType: 'general'
+                                                                            };
+                                                                            setSongExpandState(newState);
+                                                                        }}
+                                                                    >General</NoteTypeButton>
+                                                                </NoteTypesBar>
+                                                                
+                                                                {/* Active Note Type Section */}
+                                                                {(!songExpandState[song.id]?.activeNoteType || songExpandState[song.id]?.activeNoteType === 'vocals') && (
+                                                                    <NoteSection noteType="vocals">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="vocals">Vocals</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'vocals'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Lead Vocal: {['John', 'Sarah', 'Mike', 'Lisa'][song.id % 4]}</p>
+                                                                                <p>Backing Vocals: {['Alex & Emma', 'David & Rachel', 'Sam & Taylor'][song.id % 3]}</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {(songExpandState[song.id]?.activeNoteType === 'production') && (
+                                                                    <NoteSection noteType="production">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="production">Production</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'production'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Pay special attention to the dynamics in the bridge section. 
+                                                                                Start soft and build to full volume by the last chorus.</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {(songExpandState[song.id]?.activeNoteType === 'band') && (
+                                                                    <NoteSection noteType="band">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="band">Band</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'band'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Lead vocalist will cue the band for the transition from bridge to chorus.</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {(songExpandState[song.id]?.activeNoteType === 'lighting') && (
+                                                                    <NoteSection noteType="lighting">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="lighting">Lighting</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'lighting'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Blue wash for verses, warm amber for chorus, flashing strobes during bridge buildup.</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {(songExpandState[song.id]?.activeNoteType === 'audio') && (
+                                                                    <NoteSection noteType="audio">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="audio">Audio</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'audio'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Run vocals through compression with medium attack/release. Set gain to -3dB.</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {(songExpandState[song.id]?.activeNoteType === 'general') && (
+                                                                    <NoteSection noteType="general">
+                                                                        <NoteSectionHeader>
+                                                                            <NoteSectionTitle noteType="general">General</NoteSectionTitle>
+                                                                            <NoteSectionActions>
+                                                                                <PrimaryButton onClick={() => {
+                                                                                    const newState = {...songExpandState};
+                                                                                    newState[song.id] = { 
+                                                                                        ...newState[song.id],
+                                                                                        addingNoteType: 'general'
+                                                                                    };
+                                                                                    setSongExpandState(newState);
+                                                                                }}>Add Note</PrimaryButton>
+                                                                            </NoteSectionActions>
+                                                                        </NoteSectionHeader>
+                                                                        <NoteItem>
+                                                                            <NoteContent>
+                                                                                <p>Remember to have water bottles on stage for all performers.</p>
+                                                                            </NoteContent>
+                                                                            <NoteActions>
+                                                                                <NoteActionButton title="Edit"><EditIcon /></NoteActionButton>
+                                                                                <NoteActionButton title="Delete"><DeleteIcon /></NoteActionButton>
+                                                                            </NoteActions>
+                                                                        </NoteItem>
+                                                                    </NoteSection>
+                                                                )}
+                                                                
+                                                                {songExpandState[song.id]?.addingNoteType && (
+                                                                    <AddNoteForm>
+                                                                        {(() => {
+                                                                            // Safe extraction of note type with proper capitalization
+                                                                            const noteType = songExpandState[song.id]?.addingNoteType || '';
+                                                                            const capitalizedNoteType = noteType.length > 0 
+                                                                                ? noteType.charAt(0).toUpperCase() + noteType.slice(1)
+                                                                                : 'New';
+                                                                            
+                                                                            return (
+                                                                                <h4 style={{ marginTop: 0, marginBottom: theme.spacing.md }}>
+                                                                                    Add {capitalizedNoteType} Note
+                                                                                </h4>
+                                                                            );
+                                                                        })()} 
+                                                                        <textarea 
+                                                                            rows={4} 
+                                                                            style={{ 
+                                                                                width: '100%', 
+                                                                                padding: theme.spacing.sm,
+                                                                                borderRadius: theme.borderRadius.sm,
+                                                                                border: `1px solid ${theme.colors.border}`,
+                                                                                marginBottom: theme.spacing.md
+                                                                            }}
+                                                                            placeholder={`Enter ${songExpandState[song.id]?.addingNoteType || 'note'} details here...`}
+                                                                        />
+                                                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: theme.spacing.sm }}>
+                                                                            <FileButton onClick={() => {
+                                                                                const newState = {...songExpandState};
+                                                                                newState[song.id] = { 
+                                                                                    ...newState[song.id],
+                                                                                    addingNoteType: undefined
+                                                                                };
+                                                                                setSongExpandState(newState);
+                                                                            }}>Cancel</FileButton>
+                                                                            <PrimaryButton>Save Note</PrimaryButton>
+                                                                        </div>
+                                                                    </AddNoteForm>
+                                                                )}
+                                                            </NotesContainer>
+                                                        )}
+                                                    </TabContent>
+                                                </SongDetailsContainer>
+                                            )}
+                                        </SongItem>
+                                    );
+                                })}
+                            </SongList>
+                        )}
+                        <div style={{ textAlign: 'right', marginTop: theme.spacing.md }}>
+                            <ActionButton onClick={() => console.log('Add song')}>
+                                Add Song
+                            </ActionButton>
+                        </div>
+                    </Section>
+                    
+                    {/* Team Schedule has been moved to the People tab in the sidebar */}
+                </MainContent>
+
+                <SideContent>
+                    <EventSideTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                </SideContent>
+            </ContentLayout>
+        </DetailContainer>
+    );
+};
+
+export default EventDetailView;

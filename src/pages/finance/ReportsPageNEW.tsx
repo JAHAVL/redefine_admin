@@ -1,10 +1,7 @@
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
 import { FinanceThemeProvider } from '../../widgets/financewidget/theme/FinanceThemeProvider';
-import { 
-  FinanceWidgetContainer,
-  FinanceContent
-} from '../../widgets/financewidget/FinanceWidgetStyled/index';
+import { FinanceWidgetContainer, FinanceContent } from '../../widgets/financewidget/FinanceWidgetStyled';
+import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
 import ReportsModule from '../../widgets/financewidget/modules/reports/ReportsModule';
 
 /**

@@ -7,8 +7,10 @@ interface HeaderListProps {
     headers: Array<{
         id: number;
         title: string;
+        color?: string;
     }>;
     onAddHeader: () => void;
+    onHeaderColorChange?: (id: number, color: string) => void;
 }
 
 const HeaderListContainer = styled.ul`
@@ -55,7 +57,8 @@ const ActionButton = styled.button`
  */
 const HeaderList: React.FC<HeaderListProps> = ({ 
     headers, 
-    onAddHeader 
+    onAddHeader,
+    onHeaderColorChange
 }) => {
     return (
         <>
@@ -70,6 +73,8 @@ const HeaderList: React.FC<HeaderListProps> = ({
                             key={header.id}
                             id={header.id}
                             title={header.title}
+                            color={header.color}
+                            onColorChange={onHeaderColorChange}
                         />
                     ))}
                 </HeaderListContainer>

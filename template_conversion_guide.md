@@ -287,84 +287,92 @@ Once you've thoroughly tested your new template-based page and confirmed everyth
 
 - **Cause**: Usually related to imports with spaces in directory names or missing dependencies
 - **Solution**: 
-  - **MOST RELIABLE APPROACH**: Create completely self-contained components with inline styles
-  - Alternative: Use the centralized path system in `pathconfig.ts` with dynamic requires
+  - **RECOMMENDED APPROACH**: Use the centralized path system in `pathconfig.ts` with dynamic requires
+  - Alternative: Create completely self-contained components with inline styles
   - Alternative: Create fixed versions of problematic widgets in directories without spaces
   
-**Most Reliable Solution - Self-Contained Implementation:**
+**Recommended Solution - Centralized Path System:**
 
-This approach has proven to be the most reliable for resolving blank page issues caused by spaces in directory paths:
+The most maintainable approach that provides consistency throughout the application is to use the centralized pathconfig system:
 
 ```typescript
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
+import { getComponentPath } from '../../utils/pathconfig';
 
-/**
- * A simplified component with inline styles
- * This avoids any problematic imports or path issues
- */
-const SimpleComponent: React.FC = () => {
-  // Sample mock data if needed
-  const items = ['Item 1', 'Item 2', 'Item 3'];
-  
-  return (
-    <div style={{ padding: '20px', height: '100%' }}>
-      {/* Basic content with inline styles */}
-      <h2 style={{ margin: 0, marginBottom: '20px' }}>Component Title</h2>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {items.map((item, index) => (
-          <div key={index} style={{ padding: '16px', background: '#fff', borderRadius: '8px' }}>
-            {item}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+// Using pathconfig system for consistent imports
+const MainPageTemplate = require(getComponentPath('../../', 'MAIN_PAGE_TEMPLATE')).default;
+const FinanceWidget = require(getComponentPath('../../', 'FINANCE_WIDGET')).default;
 
 /**
  * Template-based page component
  */
-const NewPage: React.FC = () => {
+const FinancePageNEW: React.FC = () => {
   return (
-    <MainPageTemplate pageTitle="Page Title">
-      <SimpleComponent />
+    <MainPageTemplate pageTitle="Finance">
+      <FinanceWidget />
     </MainPageTemplate>
   );
 };
+
+export default FinancePageNEW;
 ```
 
-This approach creates a completely self-contained component with:
-1. No external dependencies or imports from problematic paths
-2. All styles defined inline
-3. Mock data where needed
+This approach offers several advantages:
+1. **Centralized path management** - All paths defined in one place (`pathconfig.ts`)
+2. **Handles spaces in paths** - Uses dynamic requires that resolve correctly
+3. **Makes refactoring easier** - Moving components only requires updating pathconfig.ts
+4. **Consistent pattern** - Creates a standard way to import components throughout the app
 
-It has proven 100% reliable in preventing blank page issues in sections like File Manager and Locations.
+Make sure your `pathconfig.ts` file contains entries for all components:
+
+```typescript
+// Core component paths - using actual filesystem paths without spaces
+export const COMPONENT_PATHS = {
+  // Core UI components
+  MAIN_PAGE_TEMPLATE: '../layouts/MainPageTemplate/MainPageTemplate',
+  LEFT_MENU: '../components/LeftMenu/LeftMenu',
+  
+  // Feature-specific components
+  FINANCE_WIDGET: '../widgets/financewidget/FinanceWidget',
+  LOCATIONS_WIDGET: '../widgets/Locations/LocationsWidget',
+  // ... other components
+};
+```
 
 **Alternative Solutions:**
 
-1. **Centralized path system:**
+1. **Self-contained components:**
    ```typescript
    import React from 'react';
-   import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
-   import { getComponentPath } from '../../utils/pathconfig';
+   import MainPageTemplate from '../../layouts/MainPageTemplate/MainPageTemplate';
 
-   // Use dynamic import to avoid issues with spaces in directory paths
-   const FileManagerWidget = require(getComponentPath('../../', 'FILE_MANAGER_WIDGET')).default;
-
-   const FileManagerPageNEW: React.FC = () => {
+   /**
+    * A simplified component with inline styles
+    * This avoids any problematic imports or path issues
+    */
+   const SimpleComponent: React.FC = () => {
+     // All functionality and styles contained within this component
+     // No external dependencies
      return (
-       <MainPageTemplate pageTitle="File Manager">
-         <FileManagerWidget />
+       <div style={{ padding: '20px' }}>
+         {/* Content with inline styles */}
+       </div>
+     );
+   };
+
+   const NewPage: React.FC = () => {
+     return (
+       <MainPageTemplate pageTitle="Page Title">
+         <SimpleComponent />
        </MainPageTemplate>
      );
    };
    ```
 
-2. **Creating fixed widgets:**
+2. **Fixed widgets approach:**
    ```typescript
-   // In src/widgets/YourWidget/YourWidgetFixed.tsx
+   // In src/widgets/FileManagerFixed/FileManagerWidgetFixed.tsx
+   // Copy the widget and fix all problematic imports
    import { /* dependencies */ } from './mock-actions';
    // Rest of widget code with fixed dependencies
    ```
@@ -384,14 +392,17 @@ It has proven 100% reliable in preventing blank page issues in sections like Fil
 
 ## Example: Locations Page Conversion
 
-Here's a complete example of converting the Locations page:
+Here's a complete example of converting the Locations page using the recommended centralized pathconfig approach:
 
 ### 1. Create LocationsPageNEW.tsx
 
 ```tsx
 import React from 'react';
-import MainPageTemplate from '../../components/MainPageTemplate/MainPageTemplate';
-import LocationsWidgetFixed from '../../widgets/Locations/LocationsWidgetFixed';
+import { getComponentPath } from '../../utils/pathconfig';
+
+// Using pathconfig system for consistent imports
+const MainPageTemplate = require(getComponentPath('../../', 'MAIN_PAGE_TEMPLATE')).default;
+const LocationsWidgetFixed = require(getComponentPath('../../', 'LOCATIONS_WIDGET_FIXED')).default;
 
 /**
  * Locations Page component

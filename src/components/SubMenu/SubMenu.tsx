@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './SubMenu.css';
 
 // Define interface for icon props
@@ -25,6 +25,13 @@ let CreditCard: IconComponent;
 let Book: IconComponent;
 let FileSpreadsheet: IconComponent;
 let FileCheck: IconComponent;
+let Edit: IconComponent;
+let MessageSquare: IconComponent;
+let CheckCircle: IconComponent;
+let Share: IconComponent;
+let Map: IconComponent;
+let BarChart2: IconComponent;
+let Settings: IconComponent;
 
 try {
   const icons = require('lucide-react');
@@ -40,6 +47,13 @@ try {
   Book = icons.Book;
   FileSpreadsheet = icons.FileSpreadsheet || icons.File;
   FileCheck = icons.FileCheck || icons.CheckSquare;
+  Edit = icons.Edit || icons.Pencil;
+  MessageSquare = icons.MessageSquare;
+  CheckCircle = icons.CheckCircle;
+  Share = icons.Share2 || icons.Share;
+  Map = icons.Map;
+  BarChart2 = icons.BarChart2 || icons.BarChart;
+  Settings = icons.Settings;
 } catch (e) {
   // Fallback SVG components if lucide-react is not available
   Calendar = (props: IconProps) => (
@@ -124,6 +138,31 @@ try {
       <polyline points="4 4 4 12 8 12"></polyline>
     </svg>
   );
+  Edit = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </svg>
+  );
+  MessageSquare = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+  );
+  CheckCircle = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+  );
+  Share = (props: IconProps) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 14} height={props.size || 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3"></circle>
+      <circle cx="6" cy="12" r="3"></circle>
+      <circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+    </svg>
+  );
 }
 
 interface SubMenuItem {
@@ -164,10 +203,10 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
       break;
     case 'locations':
       menuItems = [
-        { id: 'overview', label: '', icon: Folder, path: '/locations-new' },
-        { id: 'map', label: '', icon: FileText, path: '/locations-new/map' },
-        { id: 'analytics', label: '', icon: FileSpreadsheet, path: '/locations-new/analytics' },
-        { id: 'settings', label: '', icon: FileCheck, path: '/locations-new/settings' },
+        { id: 'overview', label: 'Overview', icon: Folder, path: '/locations' },
+        { id: 'map', label: 'Map View', icon: Map, path: '/locations/map' },
+        { id: 'analytics', label: 'Analytics', icon: BarChart2, path: '/locations/analytics' },
+        { id: 'settings', label: 'Settings', icon: Settings, path: '/locations/settings' },
       ];
       break;
     case 'mail':
@@ -175,6 +214,16 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
         { id: 'overview', label: '', icon: Folder, path: '/mail-new' },
         { id: 'templates', label: '', icon: FileText, path: '/mail-new/templates' },
         { id: 'settings', label: '', icon: FileCheck, path: '/mail-new/settings' },
+      ];
+      break;
+    case 'content-creator':
+      menuItems = [
+        { id: 'all-posts', label: 'All Content', icon: Folder, path: '/content-creator' },
+        { id: 'create', label: 'Create New', icon: Edit, path: '/content-creator/new' },
+        { id: 'review', label: 'Review', icon: CheckCircle, path: '/content-creator/review-queue' },
+        { id: 'schedule', label: 'Schedule', icon: Calendar, path: '/content-creator/schedule' },
+        { id: 'visual-scheduler', label: 'Visual Scheduler', icon: Calendar, path: '/content-creator/visual-scheduler' },
+        { id: 'analytics', label: 'Analytics', icon: FileSpreadsheet, path: '/content-creator/analytics' },
       ];
       break;
     case 'task-manager':
@@ -203,7 +252,10 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
 
   // Handle menu item click
   const handleItemClick = (path: string) => {
-    navigate(path);
+    // If we're already on the same path, don't navigate
+    if (location.pathname !== path) {
+      navigate(path);
+    }
   };
 
   // Check if an item is active based on the current URL path
@@ -213,6 +265,13 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     
     // Exact match
     if (currentPath === itemPath) return true;
+    
+    // Special case for scheduler section - when viewing event details, activate the first icon
+    if (item.id === 'overview' && mainSection === 'schedule' && 
+        (currentPath.includes('/scheduler-new/events/') || 
+         currentPath.includes('/scheduler-new/series/'))) {
+      return true;
+    }
     
     // File Manager section
     if (item.id === 'files' && currentPath === '/file-manager-new') return true;
@@ -227,10 +286,10 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     if (item.id === 'reconciliation' && currentPath === '/finance-new/reconciliation') return true;
     
     // Locations section
-    if (item.id === 'overview' && currentPath === '/locations-new') return true;
-    if (item.id === 'map' && currentPath === '/locations-new/map') return true;
-    if (item.id === 'analytics' && currentPath === '/locations-new/analytics') return true;
-    if (item.id === 'settings' && currentPath === '/locations-new/settings') return true;
+    if (item.id === 'overview' && (currentPath === '/locations' || currentPath === '/locations/')) return true;
+    if (item.id === 'map' && currentPath === '/locations/map') return true;
+    if (item.id === 'analytics' && currentPath === '/locations/analytics') return true;
+    if (item.id === 'settings' && currentPath === '/locations/settings') return true;
     
     // Mail section
     if (item.id === 'overview' && currentPath === '/mail-new') return true;
@@ -249,39 +308,60 @@ const SubMenu: React.FC<SubMenuProps> = ({ activeItem = 'board', mainSection = '
     return false;
   };
 
-  const liStyle = {
+  const liStyle = (active: boolean) => ({
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: '50%',
     width: '40px',
     height: '40px',
-    padding: '8px',
-    margin: '4px'
-  };
+    backgroundColor: active ? 'rgba(25, 118, 210, 0.1)' : 'transparent',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+    ':hover': {
+      backgroundColor: active ? 'rgba(25, 118, 210, 0.15)' : 'rgba(0, 0, 0, 0.04)'
+    },
+    color: active ? '#1976d2' : 'var(--text-muted)',
+    position: 'relative',
+    flexShrink: 0
+  } as React.CSSProperties);
 
-  const iconStyle = {
+  const iconStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 0,
-    padding: 0
+    width: '24px',
+    height: '24px',
+    color: 'inherit'
   };
 
   return (
     <div className="sub-menu">
-      <ul className="centered-icons">
-        {menuItems.map((item) => (
-          <li 
-            key={item.id} 
-            className={isActive(item) ? 'active' : ''}
-            onClick={() => handleItemClick(item.path)}
-            style={liStyle}
-          >
-            {item.icon && <span className="menu-icon" style={iconStyle}><item.icon size={20} /></span>}
-          </li>
-        ))}
-      </ul>
+      <div className="submenu-container">
+        <ul className="submenu-list">
+          {menuItems.map((item) => {
+            const isItemActive = isActive(item);
+            const Icon = item.icon || FileText; // Fallback to FileText icon if none provided
+            return (
+              <li 
+                key={item.id} 
+                className={`submenu-item ${isItemActive ? 'active' : ''}`}
+                onClick={() => handleItemClick(item.path)}
+                style={liStyle(isItemActive)}
+                title={item.label}
+              >
+                <div className="menu-icon" style={iconStyle}>
+                  {React.createElement(Icon, {
+                    size: 20,
+                    color: isItemActive ? '#1976d2' : 'currentColor',
+                    style: { display: 'block' }
+                  })}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 };

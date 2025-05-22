@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './RAIChat.css';
+import { useRAIChat } from './RAIChatContext';
+import { useRaiChatApi } from './hooks';
+import { ChatMessage as ApiChatMessage } from './api';
 
 // Import icons if available, otherwise use text fallbacks
 let MessageSquare: any;
@@ -22,27 +25,30 @@ try {
 }
 
 interface RAIChatProps {
-  expanded: boolean;
-  onExpand: (expanded: boolean) => void;
+  expanded?: boolean;
+  onExpand?: (expanded: boolean) => void;
 }
 
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
-
-const RAIChat: React.FC<RAIChatProps> = ({ expanded, onExpand }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "Hello! I'm RAI, your church administration assistant. How can I help you today?",
-      sender: 'ai',
-      timestamp: new Date()
+const RAIChat: React.FC<RAIChatProps> = ({ expanded: propExpanded, onExpand: propOnExpand }) => {
+  // Use the context to access shared state
+  const { messages, expanded: contextExpanded, setExpanded: setContextExpanded } = useRAIChat();
+  
+  // Use the API hook for backend communication
+  const { sendMessage, loading, error } = useRaiChatApi();
+  
+  // Determine if we should use props or context for expanded state
+  const expanded = propExpanded !== undefined ? propExpanded : contextExpanded;
+  
+  // Function to update expanded state (both in props if provided, and in context)
+  const handleExpandToggle = (newExpandedState: boolean) => {
+    if (propOnExpand) {
+      propOnExpand(newExpandedState);
     }
-  ]);
-  const [inputText, setInputText] = useState<string>('');
+    setContextExpanded(newExpandedState);
+  };
+  
+  // Local state for input field
+  const [inputText, setInputText] = React.useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
@@ -50,28 +56,10 @@ const RAIChat: React.FC<RAIChatProps> = ({ expanded, onExpand }) => {
 
   const handleSendMessage = () => {
     if (inputText.trim() === '') return;
-
-    // Add user message
-    const userMessage: Message = {
-      id: messages.length + 1,
-      text: inputText,
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages([...messages, userMessage]);
+    
+    // Send message to backend
+    sendMessage(inputText);
     setInputText('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: messages.length + 2,
-        text: "I'm a placeholder AI assistant. In the real app, I would provide helpful responses to your questions about church administration.",
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      setMessages(prevMessages => [...prevMessages, aiMessage]);
-    }, 1000);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -80,15 +68,70 @@ const RAIChat: React.FC<RAIChatProps> = ({ expanded, onExpand }) => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return '';
+    }
   };
+
+  // Render different message types
+  const renderMessage = (message: ApiChatMessage) => {
+    // Handle system messages
+    if (message.role === 'system') {
+      return (
+        <div key={message.id} className="system-message-container">
+          <div className={`system-message ${message.messageType || 'default'}`}>
+            {message.content}
+          </div>
+        </div>
+      );
+    }
+
+    // Handle loading state
+    if (message.isLoading) {
+      return (
+        <div key={message.id} className={`message ${message.role === 'user' ? 'user-message' : 'ai-message'}`}>
+          <div className="message-content loading">
+            <div className="message-text">
+              <div className="loading-dots">
+                <span>.</span><span>.</span><span>.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Handle regular messages
+    return (
+      <div 
+        key={message.id} 
+        className={`message ${message.role === 'user' ? 'user-message' : 'ai-message'}`}
+      >
+        <div className="message-content">
+          <div className="message-text">{message.content}</div>
+          <span className="message-time">{formatTime(message.timestamp)}</span>
+        </div>
+      </div>
+    );
+  };
+
+  // Display error as system message if there is one
+  React.useEffect(() => {
+    if (error) {
+      // Display error as system message
+      console.error('RAI Chat error:', error);
+    }
+  }, [error]);
 
   return (
     <div className={`rai-chat ${!expanded ? 'collapsed' : ''}`}>
       <div className="chat-header">
         {expanded && <h3>RAI Assistant</h3>}
-        <button onClick={() => onExpand(!expanded)}>
+        <button onClick={() => handleExpandToggle(!expanded)}>
           {!expanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
       </div>
@@ -96,17 +139,7 @@ const RAIChat: React.FC<RAIChatProps> = ({ expanded, onExpand }) => {
       {expanded && (
         <>
           <div className="chat-content">
-            {messages.map(message => (
-              <div 
-                key={message.id} 
-                className={`message ${message.sender === 'user' ? 'user-message' : 'ai-message'}`}
-              >
-                <div className="message-content">
-                  <p>{message.text}</p>
-                  <span className="message-time">{formatTime(message.timestamp)}</span>
-                </div>
-              </div>
-            ))}
+            {messages.map(message => renderMessage(message))}
           </div>
           
           <div className="chat-input">
@@ -116,8 +149,9 @@ const RAIChat: React.FC<RAIChatProps> = ({ expanded, onExpand }) => {
               value={inputText}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
+              disabled={loading}
             />
-            <button onClick={handleSendMessage}>
+            <button onClick={handleSendMessage} disabled={loading || inputText.trim() === ''}>
               <Send size={18} />
             </button>
           </div>

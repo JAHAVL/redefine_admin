@@ -4,6 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Initialize mock service worker in development
+if (process.env.NODE_ENV === 'development') {
+  // Use dynamic import to only load MSW in development
+  import('./mocks').catch(err => {
+    console.error('Failed to load mock service worker', err);
+  });
+}
+
 console.log('Index.tsx is running');
 
 const root = ReactDOM.createRoot(
